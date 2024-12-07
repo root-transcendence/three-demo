@@ -1,0 +1,23 @@
+{
+  "name": "three-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "three": "^0.171.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/three": "^0.170.0",
+    "rollup": "^4.28.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
