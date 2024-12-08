@@ -38,7 +38,6 @@ export class Game {
   }
 
   destroy() {
-    // this._cameraControls.dispose();
     this._scene.traverse((child) => {
       this._scene.remove(child);
     });
@@ -53,8 +52,10 @@ export class Game {
     this._camera.lookAt(0, 0, 0);
   }
 
-  setupScene() {
-    const ball = new Ball(this._entityManager.getSphere());
+  async setupScene() {
+    const ball = new Ball(await this._entityManager.getEntity("sphere", "physical"));
+    // const ball = await this._entityManager.isThatASupra();
+
     const light = this._entityManager.getAmbientLight();
     const spot = this._entityManager.getLight();
 

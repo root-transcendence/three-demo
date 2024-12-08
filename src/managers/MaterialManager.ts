@@ -1,7 +1,13 @@
-import { MeshPhysicalMaterial, MeshPhysicalMaterialParameters } from "three";
+import { Material, MaterialLoader } from "three";
 
 export default class MaterialManager {
   private static _instance: MaterialManager;
+
+  private _materialsPath: string = "assets/materials/";
+
+  private _materialMap: Map<string, Material> = new Map();
+
+  private _materialRefs: Map<string, number> = new Map();
 
   private constructor() {}
 
@@ -12,7 +18,58 @@ export default class MaterialManager {
     return MaterialManager._instance;
   }
 
-  getPhysicalMaterial(params?: MeshPhysicalMaterialParameters) {
-    return new MeshPhysicalMaterial(params);
+  async getMaterialWithRefAdd(id: string) {
+    try {
+      const prom = this.getMaterial(id);
+      this.addReference(id);
+      return await prom;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async getMaterial(id: string) {
+    return new Promise<Material>((resolve, reject) => {
+      if (!this._materialMap.has(id)) {
+        this._loadMaterial(id).then(resolve).catch(reject);
+      } else {
+        resolve(this._materialMap.get(id)!);
+      }
+    });
+  }
+
+  addReference(id: string) {
+    if (!this._materialRefs.has(id)) {
+      this._materialRefs.set(id, 0);
+    }
+    this._materialRefs.set(id, this._materialRefs.get(id)! + 1);
+  }
+
+  removeReference(id: string) {
+    if (!this._materialRefs.has(id)) {
+      return;
+    }
+    this._materialRefs.set(id, this._materialRefs.get(id)! - 1);
+    if (this._materialRefs.get(id) === 0) {
+      this._materialMap.get(id)?.dispose();
+      this._materialMap.delete(id);
+      this._materialRefs.delete(id);
+    }
+  }
+
+  private async _loadMaterial(id: string) {
+    return new Promise<Material>((resolve, reject) => {
+      const path = `${this._materialsPath}${id}.json`;
+      const loader = new MaterialLoader();
+      loader.load(
+        path,
+        (material) => {
+          this._materialMap.set(id, material);
+          resolve(material);
+        },
+        undefined,
+        reject
+      );
+    });
   }
 }

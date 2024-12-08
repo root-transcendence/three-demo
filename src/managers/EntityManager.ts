@@ -1,4 +1,4 @@
-import { AmbientLight, Mesh, SpotLight } from "three";
+import { AmbientLight, Mesh, Object3D, ObjectLoader, SpotLight } from "three";
 import GeometryManager from "./GeometryManager";
 import MaterialManager from "./MaterialManager";
 
@@ -17,9 +17,15 @@ export default class EntityManager {
     return EntityManager._instance;
   }
 
-  getSphere() {
-    const geo = this._geometryManager.getSphere();
-    const mat = this._materialManager.getPhysicalMaterial({ color: 0xff0000 });
+  async isThatASupra() {
+    return new Promise<Object3D>((resolve, reject) => {
+      new ObjectLoader().load("assets/objects/model.obj", resolve, undefined, reject);
+    });
+  }
+
+  async getEntity(geomertyId: string, materialId: string) {
+    const geo = await this._geometryManager.getGeometryWithRefAdd(geomertyId);
+    const mat = await this._materialManager.getMaterialWithRefAdd(materialId);
     return new Mesh(geo, mat);
   }
 
@@ -28,6 +34,6 @@ export default class EntityManager {
   }
 
   getAmbientLight() {
-    return new AmbientLight(0xffffff, .1);
+    return new AmbientLight(0xffffff, 0.1);
   }
 }
