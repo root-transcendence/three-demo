@@ -16,11 +16,20 @@
       height: 100vh;
     }
   </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@v0.171.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.171.0/examples/jsm/"
+    }
+  }
+</script>
 </head>
 
 <body>
   <div id="game"></div>
-  <script type="module" src="./src/main.ts"></script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 
 </html>

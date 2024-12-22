@@ -1,12 +1,11 @@
 import { Game } from "./core/Game";
 
 export class App {
-  private _game: Game;
-  
-  private _root: HTMLElement = document.getElementById('game') as HTMLElement;
+
 
   constructor() {
-    this._game = new Game(this._root);
+    this._game = new Game( this._root );
+    this._root = document.getElementById( 'game' );
   }
 
   start() {
@@ -18,7 +17,7 @@ export class App {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener( "DOMContentLoaded", () => {
   const app = new App();
 
   app.start();
@@ -27,4 +26,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // console.log(sphere.toJSON());
   // console.log(mat.toJSON());
-});
+} );
