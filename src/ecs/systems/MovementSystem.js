@@ -1,6 +1,6 @@
 import System from "../System";
 
-export class MovementSystem extends System {
+export default class MovementSystem extends System {
   constructor( positions, velocities ) {
     super();
     this.positions = positions;

@@ -1,12 +1,17 @@
-export class SynchronizationSystem extends System {
+import { ThrottledSystem } from "../System";
+
+export class SynchronizationSystem extends ThrottledSystem {
   constructor( positionManager, velocityManager, assetComponents ) {
-    super();
+    super(100);
     this.positionManager = positionManager;
     this.velocityManager = velocityManager;
     this.assetComponents = assetComponents;
   }
 
-  update( serverState ) {
+  performUpdate( serverState ) {
+    if ( !serverState ) {
+      return;
+    }
     for ( const entity of Object.keys( serverState ) ) {
       const state = serverState[entity];
       const position = this.positionManager.getComponent( parseInt( entity ) );

@@ -4,8 +4,8 @@ export class App {
 
 
   constructor() {
-    this._game = new Game( this._root );
     this._root = document.getElementById( 'game' );
+    this._game = new Game( this._root );
   }
 
   start() {

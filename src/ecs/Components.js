@@ -33,16 +33,3 @@ export class AssetComponent extends Component {
   }
 }
 
-export class UIComponent extends Component {
-  constructor( element ) {
-    super();
-    this.element = element;
-  }
-}
-
-export class MenuComponent extends Component {
-  constructor( element ) {
-    super();
-    this.element = element;
-  }
-}
