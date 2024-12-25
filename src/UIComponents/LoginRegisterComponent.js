@@ -1,106 +1,128 @@
-import {ButtonComponent, InputComponent,MenuComponent, TextComponent, DivComponent, FormComponent, LabelComponent } from '../ecs/components/Type.Component.js';
+import {ButtonComponent, InputComponent, TextComponent, DivComponent, FormComponent, LabelComponent } from '../ecs/components/Type.Component.js';
 import { CSS3DObject } from 'three/examples/jsm/Addons';
 import { withEventHandlers } from '../ecs/components/UIComponent.Util.js';
 
 
 function loginFormComponent() {
-  const loginForm = new FormComponent("loginForm", {class:"active"}).render();
+  const loginForm = new FormComponent("loginForm", {class:"active"});
 
-  const header = new TextComponent("loginHeader", {text:"Login", class:"loginRegisterHeader"}).render();
-  loginForm.appendChild(header);
+  const header = new TextComponent("loginHeader", {text:"Login", class:"loginRegisterHeader"});
 
   // Email input group
-  const emailGroup = new DivComponent("emailGroup", {class:"input-group"}).render();
-  const emailInput = new InputComponent("loginEmail", {type:"email", required:true, placeholder:" "}).render();
-  const emailLabel = new LabelComponent("loginEmail", {text:"Email", for:"loginEmail"}).render();
-  emailGroup.appendChild(emailInput);
-  emailGroup.appendChild(emailLabel);
-  loginForm.appendChild(emailGroup);
+  const emailGroup = new DivComponent("emailGroup", {class:"input-group"});
+  const emailInput = new InputComponent("loginEmail", {type:"email", required:true, placeholder:" "});
+  const emailLabel = new LabelComponent("loginEmail", {text:"Email", for:"loginEmail"});
+  emailGroup.elements = [
+    emailInput,
+    emailLabel
+  ]
 
   // Password input group
-  const passwordGroup = new DivComponent("passwordGroup", {class:"input-group"}).render();
-  const passwordInput = new InputComponent("loginPassword", {type:"password", required:true, placeholder:" "}).render();
-  const passwordLabel = new LabelComponent("loginPassword", {text:"Password", for:"loginPassword"}).render();
-  passwordGroup.appendChild(passwordInput);
-  passwordGroup.appendChild(passwordLabel);
-  loginForm.appendChild(passwordGroup);
+  const passwordGroup = new DivComponent("passwordGroup", {class:"input-group"});
+  const passwordInput = new InputComponent("loginPassword", {type:"password", required:true, placeholder:" "});
+  const passwordLabel = new LabelComponent("loginPassword", {text:"Password", for:"loginPassword"});
+  passwordGroup.elements = [
+    passwordInput,
+    passwordLabel
+  ]
 
   // Submit button
-  const submitButton = new ButtonComponent("submitBtn", {type:"submit", class:"submit-btn", label:"Login"}).render();
-  loginForm.appendChild(submitButton);
+  const submitButton = new ButtonComponent("submitBtn", {type:"submit", class:"submit-btn", label:"Login"});
+
+  loginForm.elements = [
+    header,
+    emailGroup,
+    passwordGroup,
+    submitButton
+  ]
 
   return loginForm;
 }
 
 function registerFormComponent() {
-  const registerForm = new FormComponent("registerForm").render();
+  const registerForm = new FormComponent("registerForm");
 
-  const header = new TextComponent("registerHeader", {text:"Register", class:"loginRegisterHeader"}).render();
-  registerForm.appendChild(header);
+  const header = new TextComponent("registerHeader", {text:"Register", class:"loginRegisterHeader"});
 
   // Username input group
-  const usernameGroup = new DivComponent("usernameGroup", {class:"input-group"}).render();
-  const usernameInput = new InputComponent("registerUsername", {type:"text", required:true, placeholder:" "}).render();
-  const usernameLabel = new LabelComponent("registerUsername", {text:"Username", for:"registerUsername"}).render();
-  usernameGroup.appendChild(usernameInput);
-  usernameGroup.appendChild(usernameLabel);
-  registerForm.appendChild(usernameGroup);
+  const usernameGroup = new DivComponent("usernameGroup", {class:"input-group"});
+  const usernameInput = new InputComponent("registerUsername", {type:"text", required:true, placeholder:" "});
+  const usernameLabel = new LabelComponent("registerUsername", {text:"Username", for:"registerUsername"});
+  usernameGroup.elements = [
+    usernameInput,
+    usernameLabel
+  ]
 
   // Email input group
-  const emailGroup = new DivComponent("emailGroup", {class:"input-group"}).render();
-  const emailInput = new InputComponent("registerEmail", {type:"email", required:true, placeholder:" "}).render();
-  const emailLabel = new LabelComponent("registerEmail", {text:"Email", for:"registerEmail"}).render();
-  emailGroup.appendChild(emailInput);
-  emailGroup.appendChild(emailLabel);
-  registerForm.appendChild(emailGroup);
+  const emailGroup = new DivComponent("emailGroup", {class:"input-group"});
+  const emailInput = new InputComponent("registerEmail", {type:"email", required:true, placeholder:" "});
+  const emailLabel = new LabelComponent("registerEmail", {text:"Email", for:"registerEmail"});
+  emailGroup.elements = [
+    emailInput,
+    emailLabel
+  ]
 
   // Password input group
-  const passwordGroup = new DivComponent("passwordGroup", {class:"input-group"}).render();
-  const passwordInput = new InputComponent("registerPassword", {type:"password", required:true, placeholder:" "}).render();
-  const passwordLabel = new LabelComponent("label", {text:"Password", for:"registerPassword"}).render();
-  passwordGroup.appendChild(passwordInput);
-  passwordGroup.appendChild(passwordLabel);
-  registerForm.appendChild(passwordGroup);
+  const passwordGroup = new DivComponent("passwordGroup", {class:"input-group"});
+  const passwordInput = new InputComponent("registerPassword", {type:"password", required:true, placeholder:" "});
+  const passwordLabel = new LabelComponent("label", {text:"Password", for:"registerPassword"});
+  passwordGroup.elements = [
+    passwordInput,
+    passwordLabel
+  ]
 
   // Submit button
-  const submitButton = new ButtonComponent("submitBtn", {type:"submit", class:"submit-btn", label:"Register"}).render();
-  registerForm.appendChild(submitButton);
+  const submitButton = new ButtonComponent("submitBtn", {type:"submit", class:"submit-btn", label:"Register"});
+
+  registerForm.elements = [
+    header,
+    usernameGroup,
+    emailGroup,
+    passwordGroup,
+    submitButton
+  ]
 
   return registerForm;
 }
 
 export default function LoginRegisterComponent(){
-  const menuContainer = new DivComponent("loginRegisterMenu", {class:"menu"}).render();
+  const menuContainer = new DivComponent("loginRegisterMenu", {class:"menu"});
 
-  const logo = new TextComponent("42", {text:"42", class:"logo"}).render();
+  const logo = new TextComponent("42", {text:"42", class:"logo"});
 
   // Swicht form
-  const modeSwitch = new DivComponent("modeSwitch", {class:"mode-switch"}).render();
+  const modeSwitch = new DivComponent("modeSwitch", {class:"mode-switch"});
   const loginButton = new ButtonComponent("loginBtn", {class:"active", label:"Login"});
   const registerButton = new ButtonComponent("registerBtn", {label:"Register"});
-  withEventHandlers(loginButton, {
-      onClick: () => console.log(`${loginButton.id} clicked`),
-    });
-  modeSwitch.appendChild(loginButton.render());
-  modeSwitch.appendChild(registerButton.render());
+  modeSwitch.elements = [
+    loginButton,
+    registerButton
+  ]
+  // withEventHandlers(loginButton, {
+  //     onClick: () => console.log(`${loginButton.id} clicked`),
+  //   });
 
   // hexagon
-  const octagon = new DivComponent("octagon", {class:"octagon"}).render();
-  const octagonInner = new DivComponent("octagonInner", {class:"octagon-inner"}).render();
-  octagonInner.appendChild(loginFormComponent());
-  octagonInner.appendChild(registerFormComponent());
-  octagon.appendChild(octagonInner);
+  const octagon = new DivComponent("octagon", {class:"octagon"});
+  const octagonInner = new DivComponent("octagonInner", {class:"octagon-inner" , elements:[
+    loginFormComponent(),
+    registerFormComponent()
+  ]});
+  octagon.elements = [
+    octagonInner,
+    new DivComponent("authStatus", {class:"auth-status"})
+  ];
 
-  const authStatus = new DivComponent("authStatus", {class:"auth-status"}).render();
-  octagon.appendChild(authStatus);
+  menuContainer.elements = [
+    logo,
+    modeSwitch,
+    octagon,
+    new DivComponent("authStatus", {class:"auth-status"})
+  ]
 
-  menuContainer.appendChild(logo);
-  menuContainer.appendChild(modeSwitch);
-  menuContainer.appendChild(octagon);
+  menuContainer.object = new CSS3DObject();
 
-  const menuObject = new CSS3DObject( menuContainer );
-  menuObject.position.set( 0, 0, 0 );
-  return menuObject;
+  return menuContainer;
 }
 /*
 document.addEventListener("DOMContentLoaded", () => {

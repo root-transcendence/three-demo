@@ -5,10 +5,19 @@ class UIComponent extends Component {
     super();
     this.id = id;
     this.styles = styles;
-    this.object = object;
+    this._object = object;
     this.class = _class || ''; // class boşsa, varsayılan olarak boş dize
     this.active = false;
     this.element = null;
+  }
+
+  get object() {
+    this.render();
+    return this._object;
+  }
+
+  set object(value) {
+    this._object = value;
   }
 
   applyStyles(element) {

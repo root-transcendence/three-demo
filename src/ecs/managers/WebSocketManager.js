@@ -32,7 +32,6 @@ export class WebSocketManager {
   reconnect() {
     console.log( 'Attempting to reconnect...' );
     this.websocket = new WebSocket( this.url );
-
     this.websocket.onopen = () => console.log( 'Reconnected to server via WSS' );
     this.websocket.onmessage = ( event ) => this.onMessage( event );
     this.websocket.onerror = ( event ) => console.error( 'WebSocket error:', event );

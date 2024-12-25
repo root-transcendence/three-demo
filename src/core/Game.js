@@ -1,5 +1,5 @@
 import { AmbientLight, Mesh, MeshBasicMaterial, PointLight, SphereGeometry, WebGLRenderer } from "three";
-import { CSS3DRenderer } from "three/examples/jsm/Addons.js";
+import { CSS3DObject, CSS3DRenderer } from "three/examples/jsm/Addons.js";
 import CameraControls from "../controls/CameraControls";
 import ComponentManager from "../ecs/managers/ComponentManager";
 import { EntityManager } from "../ecs/managers/EntityManager";
@@ -72,7 +72,7 @@ export class Game {
   }
 
   async setupScene() {
-    this._scene.add(LoginRegisterComponent());
+    this._scene.add(new CSS3DObject(LoginRegisterComponent().render()));
 
     const light = new PointLight( 0xffffff, 1 );
     light.position.set( 10, 10, 10 );
