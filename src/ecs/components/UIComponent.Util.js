@@ -6,7 +6,10 @@ export function withTransitions( component, transitions ) {
 
 export function withEventHandlers( component, events ) {
   for ( const [event, handler] of Object.entries( events ) ) {
-    component[event] = handler;
+    if (component[event]) {
+      component.removeEventListener(event);
+    }
+    component.addEventListener(event, handler);
   }
   return component;
 }

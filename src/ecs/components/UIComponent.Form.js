@@ -1,9 +1,8 @@
 import UIComponent from "./UIComponent";
 
-export class TextComponent extends UIComponent {
+export class FormComponent extends UIComponent {
   constructor(id, props = {}) {
     super(id, props.styles);
-    this.text = props.text;
     this.class = props.class || '';
   }
 
@@ -12,12 +11,11 @@ export class TextComponent extends UIComponent {
       return this.element;
     }
 
-    const textElement = document.createElement("p");
+    const textElement = document.createElement("form");
 
     this.element = textElement;
 
     textElement.id = this.id;
-    textElement.innerText = this.text;
 
     this.applyStyles(textElement);
     this.applyClasses(textElement);

@@ -5,11 +5,11 @@ export class MenuComponent extends UIComponent {
     super( id, props.styles, props.object );
     this.elements = props.elements;
 
-    this.expectedListeners = {
+    this.expectedListeners = () => ({
       click: this.onClick,
       mouseenter: this.onMouseEnter,
       mouseleave: this.onMouseLeave,
-    };
+    });
   }
 
   render() {
@@ -33,7 +33,7 @@ export class MenuComponent extends UIComponent {
       this.transitionIn( menuElement );
     }
 
-    this.addEventListeners( menuElement, this.expectedListeners );
+    this.addEventListeners( menuElement, this.expectedListeners() );
 
     return menuElement;
   }
@@ -49,6 +49,6 @@ export class MenuComponent extends UIComponent {
   }
 
   removeElement( element ) {
-    this.elements = this.elements.filter( ( e ) => e !== element );
+    this.elements = this.elements?.filter( ( e ) => e !== element );
   }
 }

@@ -1,9 +1,8 @@
 import UIComponent from "./UIComponent";
 
-export class TextComponent extends UIComponent {
+export class DivComponent extends UIComponent {
   constructor(id, props = {}) {
     super(id, props.styles);
-    this.text = props.text;
     this.class = props.class || '';
   }
 
@@ -12,13 +11,13 @@ export class TextComponent extends UIComponent {
       return this.element;
     }
 
-    const textElement = document.createElement("p");
+    const textElement = document.createElement("div");
 
     this.element = textElement;
 
     textElement.id = this.id;
-    textElement.innerText = this.text;
 
+    // Stil ve sınıf uygulamaları
     this.applyStyles(textElement);
     this.applyClasses(textElement);
 
