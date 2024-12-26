@@ -1,4 +1,8 @@
-export default class Component { }
+export default class Component {
+  constructor() {
+    this.type = this.constructor.name;
+  }
+}
 
 export class PositionComponent extends Component {
   constructor( x, y ) {

@@ -1,14 +1,20 @@
-export class RenderingSystem extends System {
-  constructor( webGLRenderer, cssRenderer, scene, camera ) {
-    super();
-    this.webGLRenderer = webGLRenderer;
-    this.cssRenderer = cssRenderer;
-    this.scene = scene;
-    this.camera = camera;
-  }
+import SystemConfig from "../../config/SystemConfig";
+import System from "../System";
 
-  update() {
-    this.webGLRenderer.render( this.scene, this.camera );
-    this.cssRenderer.render( this.scene, this.camera );
+export class RenderingSystem extends System {
+
+  constructor( { WebGLRenderer, CSS3DRenderer, Scene, Camera } ) {
+    super( SystemConfig.RenderingSystem );
+
+    this.webGLRenderer = WebGLRenderer;
+    this.cssRenderer = CSS3DRenderer;
+
+    this.scene = Scene;
+    this.camera = Camera;
+
+    this.update = () => {
+      this.webGLRenderer.render( this.scene, this.camera );
+      this.cssRenderer.render( this.scene, this.camera );
+    }
   }
 }
