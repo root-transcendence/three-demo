@@ -1,9 +1,13 @@
 export default class ComponentManager {
-  constructor() {
+  constructor( componentType ) {
     this.components = new Map();
+    this.componentType = componentType;
   }
 
   addComponent( entityId, component ) {
+    if ( this.componentType !== component.type ) {
+      throw new Error( `Component type mismatch. Expected ${this.componentType}, got ${component.type}` );
+    }
     this.components.set( entityId, component );
   }
 

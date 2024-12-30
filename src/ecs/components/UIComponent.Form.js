@@ -1,15 +1,17 @@
 import UIComponent from "./UIComponent";
 
-export class MenuComponent extends UIComponent {
-  constructor( id, props = {} ) {
-    super( id, props.styles, props.object );
-    this.elements = props.elements;
+export class FormComponent extends UIComponent {
+  constructor(id, props = {}) {
+    super(id, props.styles, props.object, props.class);
+    this.class = props.class || '';
+    this.styles = props.styles || {};
+    this.elements = props.elements || [];
 
-    this.expectedListeners = {
+    this.expectedListeners = () => ({
       click: this.onClick,
       mouseenter: this.onMouseEnter,
       mouseleave: this.onMouseLeave,
-    };
+    });
   }
 
   render() {
@@ -19,11 +21,13 @@ export class MenuComponent extends UIComponent {
 
     this.element = this.createMenuElement();
 
-    this.object.element = this.element;
+    if (this.object)
+      this.object.element = this.element;
 
     const menuElement = this.element
 
     this.applyStyles( menuElement );
+    this.applyClasses(menuElement);
 
     this.elements.forEach( ( child ) => {
       menuElement.appendChild( child.render() );
@@ -33,13 +37,13 @@ export class MenuComponent extends UIComponent {
       this.transitionIn( menuElement );
     }
 
-    this.addEventListeners( menuElement, this.expectedListeners );
+    this.addEventListeners( menuElement, this.expectedListeners() );
 
     return menuElement;
   }
 
   createMenuElement() {
-    const menuElement = document.createElement( "div" );
+    const menuElement = document.createElement( "form" );
     menuElement.id = this.id;
     return menuElement;
   }
@@ -49,6 +53,6 @@ export class MenuComponent extends UIComponent {
   }
 
   removeElement( element ) {
-    this.elements = this.elements.filter( ( e ) => e !== element );
+    this.elements = this.elements?.filter( ( e ) => e !== element );
   }
 }

@@ -1,25 +1,26 @@
 export default class System {
-  update( deltaTime ) {
-    throw new Error( "System#update(deltaTime) must be implemented by a subclass" );
-  };
-}
 
-export class ThrottledSystem extends System {
-
-  constructor( interval ) {
-    super();
-    this.interval = interval;
+  constructor( config ) {
+    this.order = config.order;
+    this.interval = config.interval;
     this.lastUpdate = 0;
+    this.componentTypes = config.componentTypes;
   }
 
-  update( deltaTime ) {
+  set update( fn ) {
+    this._update = fn;
+  }
+
+  get update() {
+    return this.performUpdate.bind( this );
+  }
+
+  performUpdate() {
     const now = performance.now();
     if ( now - this.lastUpdate >= this.interval ) {
-      this.performUpdate( deltaTime );
+      this._update( this.interval );
       this.lastUpdate = now;
     }
   }
-
-  performUpdate() { }
 }
 
