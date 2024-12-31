@@ -1,47 +1,59 @@
-import ProcedureManager from "../ecs/managers/ProcedureManager";
+import ProcedureManager, { Procedure } from "../ecs/managers/ProcedureManager";
 import { createLoginForm } from "../UIComponents/LoginRegisterComponent";
 import Engine from "./Engine";
 
+/**
+ * @class Game
+ * 
+ * @typedef {Object} GameConfig
+ * 
+ */
 export class Game {
 
+  /**
+  * @property {HTMLElement} element
+  * @property {Engine} engine
+  * @property {ProcedureManager} procedureManager
+  */
   constructor( element ) {
-    this._engine = new Engine( { element } );
-    this._procedureManager = new ProcedureManager( this._engine );
+    this.engine = new Engine( { element } );
+    this.procedureManager = new ProcedureManager( this.engine );
     document.addEventListener( "DOMContentLoaded", this.start.bind( this ) );
   }
 
   start() {
-    this._engine.setup();
-    this._engine.march();
+    this.engine.setup();
+    this.engine.march();
 
-    const testProcedure = {
+    const testProcedure = new Procedure( {
       name: "Test Procedure",
-      require: {
-        managers: ["MenuManager"],
-        three: ["CameraControls"]
+      requirements: {
+        managers: ["MenuManager"]
       },
-      start: ( { managers, three } ) => {
+      start: ( { managers } ) => {
         const { MenuManager } = managers;
-        const { CameraControls } = three;
-        const menu = createLoginForm( MenuManager );
+
+        const menu = createLoginForm();
 
         MenuManager.addMenu( menu );
         MenuManager.setActiveMenu( menu.id );
-        CameraControls.enabled = false;
+        this.engine.setInteractionCanvas( "css3d" ); // Ha buriyadur
       },
-      end: ( { managers, three } ) => {
+      end: ( { managers } ) => {
         console.log( "Ending Test Procedure" );
         const { MenuManager } = managers;
-        const { CameraControls } = three;
 
         MenuManager.setActiveMenu( null );
-        CameraControls.enabled = true;
+        this.engine.setInteractionCanvas( "webgl" );
       }
-    }
-    this._procedureManager.addProcedure( testProcedure );
-    setTimeout( () => {
-      this._procedureManager.endProcedure( testProcedure );
-    }, 5000 );
+    } );
+    this.procedureManager.addProcedure( testProcedure, true );
+    document.addEventListener( "click", () => {
+      this.procedureManager.endProcedure( testProcedure );
+    } );
+    // setTimeout( () => {
+    //   this.procedureManager.endProcedure( testProcedure );
+    // }, 5000 );
   }
 
 }

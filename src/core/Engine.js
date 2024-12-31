@@ -13,8 +13,37 @@ import { WrapperScene } from "./Scene";
 
 export default class Engine {
 
+  /**
+   * @property {HTMLElement} element
+   * @property {Map<string, Function>} updateTasks
+   * @property {{WebGLRenderer, CSS3DRenderer, Scene, Camera, CameraControls}} three
+   */
   constructor( engineConfig ) {
     this.element = engineConfig.element;
+    this.updateTasks = new Map();
+    this.three = {
+      WebGLRenderer: null,
+      CSS3DRenderer: null,
+      Scene: null,
+      Camera: null,
+      CameraControls: null
+    };
+  }
+
+  /**
+   * @method setInteractionCanvas
+   * 
+   * @param {"webgl" | "css3d"} renderer
+   */
+  setInteractionCanvas( renderer ) {
+    const { CSS3DRenderer, WebGLRenderer } = this.three;
+    const element = CSS3DRenderer.domElement;
+    const transformerElement = element.children[0];
+    const webglState = renderer == "webgl" ? "all" : "none";
+    const css3dState = renderer == "css3d" ? "all" : "none";
+    WebGLRenderer.domElement.style.pointerEvents = webglState;
+    element.style.pointerEvents = css3dState;
+    transformerElement.style.pointerEvents = css3dState;
   }
 
   march() {
@@ -32,9 +61,7 @@ export default class Engine {
       .forEach( ( system ) => system.update() );
   }
 
-
   setup() {
-    this.three = {};
     this.setupRenderer();
     this.setupCamera();
     this.setupScene();
