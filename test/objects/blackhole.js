@@ -1,15 +1,14 @@
 import { AdditiveBlending, Color, DoubleSide, Group, Mesh, MeshBasicMaterial, RingGeometry, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import * as ADSH from "./shaders/accretion.glsl";
-import * as BSH from "./shaders/blackhole.glsl";
 
-const blackholeMaterial = ( radius ) => new ShaderMaterial( {
-  vertexShader: BSH.vertex,
-  fragmentShader: BSH.fragment,
-  uniforms: {
-    blackHoleColor: { value: new Color( 0x000000 ) },
-    radius: { value: radius },
-  },
-} );
+// const blackholeMaterial = ( radius ) => new ShaderMaterial( {
+//   vertexShader: BSH.vertex,
+//   fragmentShader: BSH.fragment,
+//   uniforms: {
+//     blackHoleColor: { value: new Color( 0x000000 ) },
+//     radius: { value: radius },
+//   },
+// } );
 
 const accretionDiskMaterial = ( innerRadius = .2, outerRadius = .5 ) => new ShaderMaterial( {
   vertexShader: ADSH.vertex,
@@ -26,11 +25,11 @@ const accretionDiskMaterial = ( innerRadius = .2, outerRadius = .5 ) => new Shad
   side: DoubleSide,
 } );
 
-export function createMassiveBlackHole(position, radius = 500) {
-  const blackHole = createBlendedBlackHole(position, radius);
-  blackHole.mass = 1e6;
-  return blackHole;
-}
+// export function createMassiveBlackHole(position, radius = 500) {
+//   const blackHole = createBlendedBlackHole(position, radius);
+//   blackHole.mass = 1e6;
+//   return blackHole;
+// }
 
 export function createAccretionDisk( innerRadius, outerRadius ) {
   const geometry = new RingGeometry( innerRadius, outerRadius, 64 );
@@ -66,9 +65,11 @@ export function createBlendedBlackHole( position, radius = 200, mass = 1e6 ) {
   return blackHole;
 }
 
-export async function applyOrbitalMechanics( blackHole, starPositions, deltaTime ) {
+export function applyOrbitalMechanics( blackHole, starPositions, deltaTime ) {
+
   const bhPosition = blackHole.position;
 
+  const deltaP = new Float32Array( starPositions.length );
   for ( let i = 0; i < starPositions.length; i += 3 ) {
     const starPosition = new Vector3(
       starPositions[i],
@@ -87,23 +88,25 @@ export async function applyOrbitalMechanics( blackHole, starPositions, deltaTime
 
     starPosition.add( forceVector ).add( angularMomentum );
 
-    starPositions[i] = starPosition.x;
-    starPositions[i + 1] = starPosition.y;
-    starPositions[i + 2] = starPosition.z;
+    deltaP[i] = starPositions[i] - starPosition.x;
+    deltaP[i + 1] = starPositions[i + 1] - starPosition.y;
+    deltaP[i + 2] = starPositions[i + 2] - starPosition.z;
   }
+
+  return deltaP;
 }
 
-export function updateBlackHoleCenter(blackHole, camera, renderer, lensPass) {
-  const screenPosition = new Vector3();
-  blackHole.position.project(camera);
+// export function updateBlackHoleCenter(blackHole, camera, renderer, lensPass) {
+//   const screenPosition = new Vector3();
+//   blackHole.position.project(camera);
 
-  screenPosition.set(
-      (blackHole.position.x * 0.5 + 0.5) * renderer.domElement.width,
-      (blackHole.position.y * -0.5 + 0.5) * renderer.domElement.height
-  );
+//   screenPosition.set(
+//       (blackHole.position.x * 0.5 + 0.5) * renderer.domElement.width,
+//       (blackHole.position.y * -0.5 + 0.5) * renderer.domElement.height
+//   );
 
-  lensPass.uniforms.blackHoleCenter.value.set(
-      screenPosition.x / renderer.domElement.width,
-      screenPosition.y / renderer.domElement.height
-  );
-}
+//   lensPass.uniforms.blackHoleCenter.value.set(
+//       screenPosition.x / renderer.domElement.width,
+//       screenPosition.y / renderer.domElement.height
+//   );
+// }

@@ -15,7 +15,7 @@ function animate( opts ) {
   const delta = clock.getDelta();
 
   // nebula.material.uniforms.time.value += delta;
-  updateVisibleChunks( camera, renderer, scene, clock, composer );
+  updateVisibleChunks( camera, scene, clock );
 
   controls.update( delta );
 

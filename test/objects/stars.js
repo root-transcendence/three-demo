@@ -3,7 +3,7 @@ import { fragment } from "./shaders/star.fragment.glsl";
 import { vertex } from "./shaders/star.vertex.glsl";
 import { seededRandom } from "./util";
 
-export function generateStarsInChunk( chunkX, chunkY, chunkZ, starCount = 3 ) {
+export function generateStarsInChunk( chunkX, chunkY, chunkZ, starCount = 10 ) {
   const positions = [];
   const seed = chunkX * 73856093 ^ chunkY * 19349663 ^ chunkZ * 83492791;
 
@@ -23,7 +23,7 @@ export const starMaterial = new ShaderMaterial( {
   fragmentShader: fragment,
   transparent: true,
   blending: AdditiveBlending,
-  depthTest: true, // Ensure depth testing is enabled
+  depthTest: true,
 } );
 
 export function createStarfield( chunkX, chunkY, chunkZ ) {

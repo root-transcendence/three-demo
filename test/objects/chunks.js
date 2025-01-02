@@ -1,44 +1,67 @@
-import { BoxGeometry, BoxHelper, Mesh, MeshBasicMaterial, Vector3 } from "three";
-import { applyOrbitalMechanics, createBlendedBlackHole } from "./blackhole";
-import { createStarfield } from "./stars";
+import {
+  BoxGeometry,
+  BoxHelper,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3
+} from "three";
+
+import {
+  createBlendedBlackHole
+} from "./blackhole";
+
+import { clamp } from "three/src/math/MathUtils.js";
+import {
+  createStarfield
+} from "./stars";
+
+//////////////////////////
+// GLOBAL DATA
+//////////////////////////
+
+export const CHUNK_SIZE = 1000;
+export const RENDER_DISTANCE = 5;
+export const BLACKHOLE_DISTRIBUTION = 500;
+
+export const blackHoles = {};
+
+export const visibleChunks = {};
 
 const chunkHelpers = {};
-export const visibleChunks = {};
-export const blackHoles = [];
-const CHUNK_SIZE = 1000;
-const RENDER_DISTANCE = 5;
-const BLACKHOLE_DISTRIBUTION = 50;
+
+//////////////////////////
+// SHARED MATERIALS / GEOMETRIES
+//////////////////////////
 
 const chunkHelperProperties = {
   geometry: new BoxGeometry( CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE ),
   material: new MeshBasicMaterial( { color: 0xff0000, wireframe: true } ),
-}
+};
 
+// Helper function if you want the wireframe box for debugging
 function createChunkHelper( chunkX, chunkY, chunkZ, chunkSize ) {
-  const mesh = new Mesh( chunkHelperProperties.geometry, chunkHelperProperties.material );
-
+  // basic mesh used for bounding box
+  const mesh = new Mesh(
+    chunkHelperProperties.geometry,
+    chunkHelperProperties.material
+  );
   mesh.position.set(
     chunkX * chunkSize + chunkSize / 2,
     chunkY * chunkSize + chunkSize / 2,
     chunkZ * chunkSize + chunkSize / 2
   );
 
+  // wrap in BoxHelper
   return new BoxHelper( mesh, 0x00ff00 );
 }
 
-// function createGalaxy(position) {
-//   const blackHole = createMassiveBlackHole(position);
+//////////////////////////
+// BLACK HOLE MANAGEMENT
+//////////////////////////
 
-//   const galaxy = generateGalaxyStars(blackHole);
-
-//   const galaxyGroup = new THREE.Group();
-//   galaxyGroup.add(blackHole);
-//   galaxyGroup.add(galaxy);
-
-//   return galaxyGroup;
-// }
-
-
+/**
+ * Creates (if necessary) a black hole that "owns" the chunk region
+ */
 function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
   const ownerChunkX = Math.floor( chunkX / BLACKHOLE_DISTRIBUTION ) * BLACKHOLE_DISTRIBUTION;
   const ownerChunkY = Math.floor( chunkY / BLACKHOLE_DISTRIBUTION ) * BLACKHOLE_DISTRIBUTION;
@@ -46,33 +69,99 @@ function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
 
   const key = `${ownerChunkX},${ownerChunkY},${ownerChunkZ}`;
 
+  // If not already created, create one
   if ( !blackHoles[key] ) {
     const position = new Vector3(
       ownerChunkX * CHUNK_SIZE + Math.random() * CHUNK_SIZE * BLACKHOLE_DISTRIBUTION,
       ownerChunkY * CHUNK_SIZE + Math.random() * CHUNK_SIZE * BLACKHOLE_DISTRIBUTION,
       ownerChunkZ * CHUNK_SIZE + Math.random() * CHUNK_SIZE * BLACKHOLE_DISTRIBUTION
     );
-    const blackHole = createBlendedBlackHole( position, 200 );
-    blackHoles[key] = blackHole;
-    scene.add( blackHole );
+
+    // Example usage: create the black hole with mass = 200
+    const bh = createBlendedBlackHole( position, clamp( Math.random() * 5000, 100, 5000 ), 1e6 );
+    blackHoles[key] = bh;
+    scene.add( bh );
   }
 }
 
-function getChunksAffectedByBlackHole( blackHole ) {
-  return Object.values( visibleChunks ).filter( ( chunk ) => {
-    const chunkCenter = new Vector3(
-      chunk.x * CHUNK_SIZE + CHUNK_SIZE / 2,
-      chunk.y * CHUNK_SIZE + CHUNK_SIZE / 2,
-      chunk.z * CHUNK_SIZE + CHUNK_SIZE / 2
+//////////////////////////
+// PHYSICS - MULTI BH PASS
+//////////////////////////
+
+/**
+ * Aggregates black-hole influences in a single pass per chunk
+ */
+function applyOrbitalForcesToChunk( chunk, blackHoleList, deltaTime ) {
+  if ( !chunk || !chunk.starfield || !chunk.starfield.geometry ) return;
+
+  const positions = chunk.starfield.geometry.attributes.position.array;
+  const deltaP = new Float32Array( positions.length );
+
+  // Reusable vectors to reduce new allocations
+  const tmpStarPos = new Vector3();
+  const bhDirection = new Vector3();
+  const tangential = new Vector3();
+
+  for ( let i = 0; i < positions.length; i += 3 ) {
+    // Current star position
+    tmpStarPos.set(
+      positions[i],
+      positions[i + 1],
+      positions[i + 2]
     );
 
-    const distance = chunkCenter.distanceTo( blackHole.position );
-    return distance < blackHole.influenceRadius;
+    // For each black hole, accumulate forces
+    blackHoleList.forEach( ( bh ) => {
+      bhDirection.copy( bh.position ).sub( tmpStarPos );
+      const dist = bhDirection.length();
+
+      // Skip extremely close or extremely far cases if needed
+      if ( dist === 0 ) return;
+
+      const gravitationalForce = bh.mass / ( dist * dist );
+      bhDirection.normalize().multiplyScalar( gravitationalForce * deltaTime );
+
+      // Example tangential motion (fake orbital approx)
+      tangential.set( -bhDirection.y, bhDirection.x, 0 ).normalize().multiplyScalar( 0.1 );
+
+      // Add to the star
+      tmpStarPos.add( bhDirection ).add( tangential );
+    } );
+
+    // The star's total displacement in this frame
+    deltaP[i] = positions[i] - tmpStarPos.x;
+    deltaP[i + 1] = positions[i + 1] - tmpStarPos.y;
+    deltaP[i + 2] = positions[i + 2] - tmpStarPos.z;
+  }
+
+  // Now update positions in one pass
+  for ( let i = 0; i < deltaP.length; i += 3 ) {
+    positions[i] += deltaP[i];
+    positions[i + 1] += deltaP[i + 1];
+    positions[i + 2] += deltaP[i + 2];
+  }
+
+  chunk.starfield.geometry.attributes.position.needsUpdate = true;
+}
+
+/**
+ * Return an array of black holes that significantly affect this chunk
+ */
+function getRelevantBlackHolesForChunk( chunk ) {
+  // You can refine with distance checks. For now, we just gather all black holes
+  // that are within their influence radius from the chunk center
+  const center = chunk.center;
+  return Object.values( blackHoles ).filter( ( bh ) => {
+    const distToBH = center.distanceTo( bh.position );
+    return distToBH < ( bh.influenceRadius || 2000 );
   } );
 }
 
+//////////////////////////
+// CHUNK VISIBILITY & UPDATE
+//////////////////////////
 
-export function updateVisibleChunks( camera, renderer, scene, clock, composer ) {
+export function updateVisibleChunks( camera, scene, clock ) {
   const cameraPosition = camera.position;
   const chunkX = Math.floor( cameraPosition.x / CHUNK_SIZE );
   const chunkY = Math.floor( cameraPosition.y / CHUNK_SIZE );
@@ -83,56 +172,67 @@ export function updateVisibleChunks( camera, renderer, scene, clock, composer ) 
       for ( let cz = chunkZ - RENDER_DISTANCE; cz <= chunkZ + RENDER_DISTANCE; cz++ ) {
         const chunkKey = `${cx},${cy},${cz}`;
         if ( !visibleChunks[chunkKey] ) {
-
           const starfield = createStarfield( cx, cy, cz );
-          visibleChunks[chunkKey] = { starfield, x: cx, y: cy, z: cz };
+
+          const center = new Vector3(
+            cx * CHUNK_SIZE + CHUNK_SIZE / 2,
+            cy * CHUNK_SIZE + CHUNK_SIZE / 2,
+            cz * CHUNK_SIZE + CHUNK_SIZE / 2
+          );
+
+          visibleChunks[chunkKey] = {
+            starfield,
+            x: cx,
+            y: cy,
+            z: cz,
+            center
+          };
           scene.add( starfield );
 
           generateBlackHolesForChunks( cx, cy, cz, scene );
 
-          // const helper = createChunkHelper( cx, cy, cz, CHUNK_SIZE );
+          // (Optional) debug helper
+          // const helper = createChunkHelper(cx, cy, cz, CHUNK_SIZE);
           // chunkHelpers[chunkKey] = helper;
-          // scene.add( helper );
+          // scene.add(helper);
         }
       }
     }
   }
 
-  Object.values( blackHoles ).forEach( ( blackHole ) => {
-    const affectedChunks = getChunksAffectedByBlackHole( blackHole );
-    affectedChunks.forEach( ( chunk ) => {
-      const delta = clock.getDelta();
+  // 2) Accrete + Apply forces from black holes in a single pass per chunk
+  const deltaTime = clock.getDelta();
 
-      blackHole.accretionDiskMaterial.uniforms.time.value += delta;
+  Object.values( blackHoles ).forEach( ( bh ) => {
+    if ( bh.accretionDiskMaterial && bh.accretionDiskMaterial.uniforms.time ) {
+      bh.accretionDiskMaterial.uniforms.time.value += deltaTime;
+    }
+  } );
 
-      applyOrbitalMechanics( blackHole, chunk.starfield.geometry.attributes.position.array, delta );
-
-      chunk.starfield.geometry.attributes.position.needsUpdate = true;
-
-      // const lensPass = composer.passes[1];
-
-      // updateBlackHoleCenter( blackHole, camera, renderer, lensPass );
-    } );
+  Object.entries( visibleChunks ).forEach( ( [key, chunk] ) => {
+    const relevantBHs = getRelevantBlackHolesForChunk( chunk );
+    if ( relevantBHs.length > 0 ) {
+      applyOrbitalForcesToChunk( chunk, relevantBHs, deltaTime );
+    }
   } );
 
   for ( const key in visibleChunks ) {
-    const [x, y, z] = key.split( ',' ).map( Number );
+    const chunk = visibleChunks[key];
     if (
-      Math.abs( x - chunkX ) > RENDER_DISTANCE ||
-      Math.abs( y - chunkY ) > RENDER_DISTANCE ||
-      Math.abs( z - chunkZ ) > RENDER_DISTANCE
+      Math.abs( chunk.x - chunkX ) > RENDER_DISTANCE ||
+      Math.abs( chunk.y - chunkY ) > RENDER_DISTANCE ||
+      Math.abs( chunk.z - chunkZ ) > RENDER_DISTANCE
     ) {
+      // remove from scene
+      scene.remove( chunk.starfield );
 
-      // Remove starfield
-      scene.remove( visibleChunks[key].starfield );
-      delete visibleChunks[key].starfield;
+      if ( chunkHelpers[key] ) {
+        scene.remove( chunkHelpers[key] );
+        delete chunkHelpers[key];
+      }
 
-      // Remove chunk
       delete visibleChunks[key];
-
-      // Remove chunk helper (optional for debugging)
-      scene.remove( chunkHelpers[key] );
-      delete chunkHelpers[key];
     }
   }
 }
+
