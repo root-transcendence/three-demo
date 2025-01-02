@@ -1,9 +1,11 @@
-import { AmbientLight, WebGLRenderer } from "three";
+import { AmbientLight, Clock, WebGLRenderer } from "three";
 import { CSS3DRenderer } from "three/examples/jsm/Addons.js";
 import CameraControls from "../controls/CameraControls";
+import { AssetManager } from "../ecs/managers/AssetManager";
 import ComponentManager from "../ecs/managers/ComponentManager";
 import { EntityManager } from "../ecs/managers/EntityManager";
 import { MenuManager } from "../ecs/managers/MenuManager";
+import ProcedureManager from "../ecs/managers/ProcedureManager";
 import MovementSystem from "../ecs/systems/MovementSystem";
 import { RenderingSystem } from "../ecs/systems/RenderingSystem";
 import { SynchronizationSystem } from "../ecs/systems/SyncronizationSystem";
@@ -24,6 +26,7 @@ export default class Engine {
     this.element = engineConfig.element;
     this.updateTasks = new Map();
     this.three = {
+      Clock: new Clock(true),
       WebGLRenderer: null,
       CSS3DRenderer: null,
       Scene: null,
@@ -85,7 +88,6 @@ export default class Engine {
     cssRenderer.domElement.style.zIndex = 1;
     cssRenderer.domElement.style.pointerEvents = "none";
 
-    cssRenderer.setClearColor( 0x000000 );
     webglRenderer.setClearColor( 0x000000 );
 
     this.element.appendChild( webglRenderer.domElement );
@@ -100,10 +102,13 @@ export default class Engine {
     this.three.Camera = camera;
     this.three.CameraControls = cameraControls;
 
-    const { width, height } = this.element.getBoundingClientRect();
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    cameraControls.update();
+
+    cameraControls.enabled = true;
+    cameraControls.autoForward = false;
+    cameraControls.dragToLook = true;
+    cameraControls.movementSpeed = 100;
+    cameraControls.domElement = WebGLRenderer.domElement;
+    cameraControls.rollSpeed = Math.PI / 6;
     camera.position.z = 500;
     camera.lookAt( 0, 0, 0 );
   }
@@ -125,9 +130,12 @@ export default class Engine {
     this.managers = {
       EntityManager: new EntityManager(),
       MenuManager: new MenuManager( this.three.Scene ),
-      PositionManager: new ComponentManager( "PositionComponent" ),
-      VelocityManager: new ComponentManager( "VelocityComponent" ),
-      AssetManager: new ComponentManager( "AssetComponent" ),
+      ProcedureManager: new ProcedureManager( this ),
+      AssetManager: new AssetManager(),
+      /* Component Managers */
+      PositionComponentManager: new ComponentManager( "PositionComponent" ),
+      VelocityComponentManager: new ComponentManager( "VelocityComponent" ),
+      AssetComponentManager: new ComponentManager( "AssetComponent" ),
     };
     // Object.values( this.managers )
     //   .filter( manager => manager instanceof ComponentManager )
@@ -138,9 +146,9 @@ export default class Engine {
     this.systems = {
       // QuerySystem: new QuerySystem( this.managers );
       UISystem: new UISystem( this.managers.MenuManager ),
-      MovementSystem: new MovementSystem( this.managers.PositionManager, this.managers.VelocityManager ),
+      MovementSystem: new MovementSystem( this.managers.PositionComponentManager, this.managers.VelocityComponentManager ),
       RenderingSystem: new RenderingSystem( this.three ),
-      SynchronizationSystem: new SynchronizationSystem( this.managers.PositionManager, this.managers.VelocityManager, this.managers.AssetManager ),
+      SynchronizationSystem: new SynchronizationSystem( this.managers.PositionComponentManager, this.managers.VelocityComponentManager, this.managers.AssetComponentManager ),
     }
   }
 
@@ -150,7 +158,7 @@ export default class Engine {
 
     Camera.aspect = width / height;
     Camera.updateProjectionMatrix();
-    
+
     WebGLRenderer.setSize( width, height );
     CSS3DRenderer.setSize( width, height );
 

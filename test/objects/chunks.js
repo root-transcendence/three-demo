@@ -21,7 +21,7 @@ import {
 
 export const CHUNK_SIZE = 1000;
 export const RENDER_DISTANCE = 5;
-export const BLACKHOLE_DISTRIBUTION = 500;
+export const BLACKHOLE_DISTRIBUTION = 50;
 
 export const blackHoles = {};
 
@@ -38,20 +38,18 @@ const chunkHelperProperties = {
   material: new MeshBasicMaterial( { color: 0xff0000, wireframe: true } ),
 };
 
-// Helper function if you want the wireframe box for debugging
 function createChunkHelper( chunkX, chunkY, chunkZ, chunkSize ) {
-  // basic mesh used for bounding box
   const mesh = new Mesh(
     chunkHelperProperties.geometry,
     chunkHelperProperties.material
   );
+
   mesh.position.set(
     chunkX * chunkSize + chunkSize / 2,
     chunkY * chunkSize + chunkSize / 2,
     chunkZ * chunkSize + chunkSize / 2
   );
 
-  // wrap in BoxHelper
   return new BoxHelper( mesh, 0x00ff00 );
 }
 
@@ -59,9 +57,6 @@ function createChunkHelper( chunkX, chunkY, chunkZ, chunkSize ) {
 // BLACK HOLE MANAGEMENT
 //////////////////////////
 
-/**
- * Creates (if necessary) a black hole that "owns" the chunk region
- */
 function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
   const ownerChunkX = Math.floor( chunkX / BLACKHOLE_DISTRIBUTION ) * BLACKHOLE_DISTRIBUTION;
   const ownerChunkY = Math.floor( chunkY / BLACKHOLE_DISTRIBUTION ) * BLACKHOLE_DISTRIBUTION;
@@ -69,7 +64,6 @@ function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
 
   const key = `${ownerChunkX},${ownerChunkY},${ownerChunkZ}`;
 
-  // If not already created, create one
   if ( !blackHoles[key] ) {
     const position = new Vector3(
       ownerChunkX * CHUNK_SIZE + Math.random() * CHUNK_SIZE * BLACKHOLE_DISTRIBUTION,
@@ -77,8 +71,9 @@ function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
       ownerChunkZ * CHUNK_SIZE + Math.random() * CHUNK_SIZE * BLACKHOLE_DISTRIBUTION
     );
 
-    // Example usage: create the black hole with mass = 200
-    const bh = createBlendedBlackHole( position, clamp( Math.random() * 5000, 100, 5000 ), 1e6 );
+    const rad = clamp( Math.random() * 5000, 100, 5000 );
+
+    const bh = createBlendedBlackHole( position, rad, 1e6 );
     blackHoles[key] = bh;
     scene.add( bh );
   }
@@ -88,53 +83,42 @@ function generateBlackHolesForChunks( chunkX, chunkY, chunkZ, scene ) {
 // PHYSICS - MULTI BH PASS
 //////////////////////////
 
-/**
- * Aggregates black-hole influences in a single pass per chunk
- */
 function applyOrbitalForcesToChunk( chunk, blackHoleList, deltaTime ) {
   if ( !chunk || !chunk.starfield || !chunk.starfield.geometry ) return;
 
   const positions = chunk.starfield.geometry.attributes.position.array;
   const deltaP = new Float32Array( positions.length );
 
-  // Reusable vectors to reduce new allocations
   const tmpStarPos = new Vector3();
   const bhDirection = new Vector3();
   const tangential = new Vector3();
 
   for ( let i = 0; i < positions.length; i += 3 ) {
-    // Current star position
     tmpStarPos.set(
       positions[i],
       positions[i + 1],
       positions[i + 2]
     );
 
-    // For each black hole, accumulate forces
     blackHoleList.forEach( ( bh ) => {
       bhDirection.copy( bh.position ).sub( tmpStarPos );
       const dist = bhDirection.length();
 
-      // Skip extremely close or extremely far cases if needed
       if ( dist === 0 ) return;
 
       const gravitationalForce = bh.mass / ( dist * dist );
       bhDirection.normalize().multiplyScalar( gravitationalForce * deltaTime );
 
-      // Example tangential motion (fake orbital approx)
       tangential.set( -bhDirection.y, bhDirection.x, 0 ).normalize().multiplyScalar( 0.1 );
 
-      // Add to the star
       tmpStarPos.add( bhDirection ).add( tangential );
     } );
 
-    // The star's total displacement in this frame
     deltaP[i] = positions[i] - tmpStarPos.x;
     deltaP[i + 1] = positions[i + 1] - tmpStarPos.y;
     deltaP[i + 2] = positions[i + 2] - tmpStarPos.z;
   }
 
-  // Now update positions in one pass
   for ( let i = 0; i < deltaP.length; i += 3 ) {
     positions[i] += deltaP[i];
     positions[i + 1] += deltaP[i + 1];
@@ -144,9 +128,6 @@ function applyOrbitalForcesToChunk( chunk, blackHoleList, deltaTime ) {
   chunk.starfield.geometry.attributes.position.needsUpdate = true;
 }
 
-/**
- * Return an array of black holes that significantly affect this chunk
- */
 function getRelevantBlackHolesForChunk( chunk ) {
   // You can refine with distance checks. For now, we just gather all black holes
   // that are within their influence radius from the chunk center

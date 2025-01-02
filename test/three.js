@@ -12,6 +12,7 @@ export function initThree() {
   window.addEventListener( "resize", () => updateSizes( camera, renderer ) );
 
   camera.far = 1000000;
+  camera.near = 0.00001;
   camera.lookAt( 0, 0, 0 );
 
   controls.enabled = true;
