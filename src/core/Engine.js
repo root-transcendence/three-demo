@@ -17,6 +17,8 @@ export default class Engine {
    * @property {HTMLElement} element
    * @property {Map<string, Function>} updateTasks
    * @property {{WebGLRenderer, CSS3DRenderer, Scene, Camera, CameraControls}} three
+   * 
+   * @param
    */
   constructor( engineConfig ) {
     this.element = engineConfig.element;
@@ -67,11 +69,12 @@ export default class Engine {
     this.setupScene();
     this.setupManagers();
     this.setupSystems();
+
+    window.addEventListener( "resize", this._updateSizes.bind( this ) );
+    window.addEventListener( "DOMContentLoaded", this._updateSizes.bind( this ), { once: true } );
   }
 
   setupRenderer() {
-    const { width, height } = this.element.getBoundingClientRect();
-
     const webglRenderer = new WebGLRenderer( { powerPreference: "high-performance" } );
     const cssRenderer = new CSS3DRenderer();
 
@@ -82,16 +85,11 @@ export default class Engine {
     cssRenderer.domElement.style.zIndex = 1;
     cssRenderer.domElement.style.pointerEvents = "none";
 
-    webglRenderer.setSize( width, height );
-    cssRenderer.setSize( width, height );
-
-    webglRenderer.setSize( width, height );
+    cssRenderer.setClearColor( 0x000000 );
     webglRenderer.setClearColor( 0x000000 );
 
     this.element.appendChild( webglRenderer.domElement );
     this.element.appendChild( cssRenderer.domElement );
-
-    window.addEventListener( "resize", this._updateSizes.bind( this ) );
   }
 
   setupCamera() {
@@ -152,10 +150,10 @@ export default class Engine {
 
     Camera.aspect = width / height;
     Camera.updateProjectionMatrix();
-
+    
     WebGLRenderer.setSize( width, height );
-    WebGLRenderer.setPixelRatio( Math.min( this.element.devicePixelRatio, 2 ) );
-
     CSS3DRenderer.setSize( width, height );
+
+    WebGLRenderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
   }
 }

@@ -55,5 +55,4 @@ export class Game {
     //   this.procedureManager.endProcedure( testProcedure );
     // }, 5000 );
   }
-
 }
