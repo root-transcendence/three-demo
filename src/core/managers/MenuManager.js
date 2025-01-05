@@ -21,6 +21,7 @@ export class MenuManager {
       if ( id === menuId ) {
         menu.active = true;
         this.camera.add( menu.object );
+        menu.object.position.set( 0, 0, -500 );
       } else {
         menu.active = false;
         this.camera.remove( menu.object );

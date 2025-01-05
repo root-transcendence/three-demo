@@ -1,4 +1,4 @@
-import { AudioLoader, ObjectLoader, TextureLoader } from "three";
+import { AudioLoader, MathUtils, ObjectLoader, TextureLoader } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 class AssetManager {
@@ -43,7 +43,20 @@ class AssetManager {
         this.logProgress( e, type, key )( e ),
         reject )
     );
+  }
 
+  async parse( data ) {
+    const typeCache = this.getTypeCache( "object" );
+    if ( data.uuid && typeCache.has( data.uuid ) ) return typeCache.get( data.uuid );
+    else if ( data.uuid === undefined ) data.uuid = MathUtils.generateUUID();
+
+    return new Promise( ( resolve, reject ) => {
+      this.loaders.object.parse( data, ( object ) => {
+        typeCache.set( object.uuid, object ).get( object.uuid )
+        resolve( object );
+      } );
+    }
+    );
   }
 
   get( key, type ) {

@@ -2,13 +2,20 @@ import { ManagersMixin } from "./Engine.ManagersMixin";
 import { SystemsMixin } from "./Engine.SystemsMixin";
 import { ThreeMixin } from "./Engine.ThreeMixin";
 
+/**
+ * @class Engine
+ * @classdesc The core engine of the game.
+ * 
+ * @mixes ThreeMixin
+ * @mixes ManagersMixin
+ * @mixes SystemsMixin
+ */
 export default class Engine {
   /**
    * 
-   * @param {{
-   * socket: string,
-   * element: HTMLElement
-   * }} engineConfig
+   * @param {Object} engineConfig - The configuration for the engine.
+   * @param {string} engineConfig.socket - WebSocket connection string.
+   * @param {HTMLElement} engineConfig.element - The HTML element to render the engine.
    * 
    * @property {HTMLElement} element
    * @property {Map<string, Function>} updateTasks
@@ -49,6 +56,10 @@ export default class Engine {
     animate();
   }
 
+  /**
+   * Updates active systems in order of priority.
+   * @private
+   */
   #update() {
     Object.values( this.systems )
       .filter( s => s.state === "active" )

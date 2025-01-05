@@ -1,7 +1,15 @@
+import { CSS3DObject } from "three/examples/jsm/Addons.js";
 import Component from "../Components";
 
 class UIComponent extends Component {
-  constructor(id, styles = {}, object, _class) {
+  /**
+   * 
+   * @param {string} id 
+   * @param {CSSRuleList} styles 
+   * @param {CSS3DObject} object 
+   * @param {string} _class 
+   */
+  constructor( id, styles = {}, object, _class ) {
     super();
     this.id = id;
     this.styles = styles;
@@ -16,50 +24,50 @@ class UIComponent extends Component {
     return this._object;
   }
 
-  set object(value) {
+  set object( value ) {
     this._object = value;
   }
 
-  applyStyles(element) {
-    if (this.styles) {
-      for (const [key, value] of Object.entries(this.styles)) {
+  applyStyles( element ) {
+    if ( this.styles ) {
+      for ( const [key, value] of Object.entries( this.styles ) ) {
         element.style[key] = value;
       }
     }
   }
 
-  applyClasses(element) {
-    if (this.class) {
-      element.classList.add(this.class); // classList ile sınıf ekleyin
+  applyClasses( element ) {
+    if ( this.class ) {
+      element.classList.add( this.class ); // classList ile sınıf ekleyin
     }
   }
 
-  applyAttributes(element) {
-    if (this.object) {
-      for (const [key, value] of Object.entries(this.object)) {
+  applyAttributes( element ) {
+    if ( this.object ) {
+      for ( const [key, value] of Object.entries( this.object ) ) {
         element[key] = value;
       }
     }
   }
 
-  removeEventListener(event) {
-    if (this.element && this[event]) {
-        this.element.removeEventListener(event, this[event]);
-      }
+  removeEventListener( event ) {
+    if ( this.element && this[event] ) {
+      this.element.removeEventListener( event, this[event] );
+    }
     this[event] = null;
   }
 
-  addEventListener(event, handler) {
-    if (this.element && this[event]) {
-      this.element.removeEventListener(event, this[event]);
+  addEventListener( event, handler ) {
+    if ( this.element && this[event] ) {
+      this.element.removeEventListener( event, this[event] );
     }
     this[event] = handler;
   }
 
-  addEventListeners(element, expectedListeners) {
-    for (const [event, handler] of Object.entries(expectedListeners)) {
-      if (handler) {
-        element.addEventListener(event, handler);
+  addEventListeners( element, expectedListeners ) {
+    for ( const [event, handler] of Object.entries( expectedListeners ) ) {
+      if ( handler ) {
+        element.addEventListener( event, handler );
       }
     }
   }

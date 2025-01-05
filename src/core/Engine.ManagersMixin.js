@@ -30,7 +30,7 @@ export const ManagersMixin = {
     this.addManager( new MenuManager( this.three.Camera ) );
     this.addManager( new ProcedureManager( this ) );
     this.addManager( new AssetManager() );
-    this.addManager( new EnvironmentManager( this.three.Camera ) );
+    this.addManager( new EnvironmentManager( this ) );
     this.addManager( new WebSocketManager( "/asd" ) );
     this.addManager( new ComponentManager( "AssetComponent" ) );
     this.addManager( new ComponentManager( "PositionComponent" ) );

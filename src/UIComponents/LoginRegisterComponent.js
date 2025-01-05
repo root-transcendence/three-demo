@@ -127,8 +127,8 @@ export default function loginRegisterComponent() {
   return menuContainer;
 }
 
-export function createLoginForm( menuManager ) {
-  const menuContainer = new DivComponent( "loginRegisterMenu", { class: "menu" } );
+export function createLoginForm() {
+  const menuContainer = new DivComponent( "loginRegisterMenu", { object: new CSS3DObject(), class: "menu" } );
 
   const logo = new TextComponent( "42", { text: "42", class: "logo" } );
 
@@ -161,8 +161,6 @@ export function createLoginForm( menuManager ) {
     octagon,
     new DivComponent( "authStatus", { class: "auth-status" } )
   ]
-
-  menuContainer.object = new CSS3DObject();
 
   withEventHandlers( loginButton, {
     onClick: () => {

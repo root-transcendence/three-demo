@@ -3,20 +3,16 @@ import System from "../System";
 
 export class RenderingSystem extends System {
 
-  constructor( { Clock, WebGLRenderer, CSS3DRenderer, Scene, Camera, CameraControls } ) {
+  constructor( engine ) {
     super( SystemConfig.RenderingSystem );
 
-    this.webGLRenderer = WebGLRenderer;
-    this.cssRenderer = CSS3DRenderer;
-    this.cameraControls = CameraControls;
-
-    this.scene = Scene;
-    this.camera = Camera;
+    this.engine = engine;
+    this.three = engine.three;
 
     this.update = () => {
-      this.cameraControls.update( Clock.getDelta() );
-      this.webGLRenderer.render( this.scene, this.camera );
-      this.cssRenderer.render( this.scene, this.camera );
+      this.three.CameraControls.update( this.three.Clock.getDelta() );
+      this.three.WebGLRenderer.render( this.three.Scene, this.three.Camera );
+      this.three.CSS3DRenderer.render( this.three.Scene, this.three.Camera );
     }
   }
 }

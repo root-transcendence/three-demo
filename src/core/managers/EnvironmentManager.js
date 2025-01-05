@@ -1,27 +1,28 @@
-import { AmbientLight, Camera } from "three";
+import { AmbientLight } from "three";
+import Engine from "../Engine";
 import { WrapperScene } from "../Scene";
 import { AssetManager } from "./AssetManager";
 
 export class EnvironmentManager {
   /**
    * 
-   * @param {Camera} camera 
+   * @param {Engine} engine
    * @param {AssetManager} assetManager 
    * 
    * @property {Map<string, WrapperScene>} scenes
    * @property {WrapperScene} activeScene
    */
-  constructor( camera, assetManager ) {
+  constructor( engine ) {
     this.scenes = new Map();
+    this.engine = engine;
     this.activeScene = null;
-    this.camera = camera;
-    this.assetManager = assetManager;
+    this.assetManager = this.engine.getManager( AssetManager );
   }
 
   loadConfig( config ) {
     config.scenes.forEach( ( sceneConfig ) => {
       const scene = this.createSceneFromConfig( sceneConfig );
-      this.addScene( sceneConfig.name, scene );
+      this.addScene( scene );
     } );
   }
 
@@ -49,11 +50,20 @@ export class EnvironmentManager {
       } );
     }
 
+    if ( config.children ) {
+      config.children.forEach( ( childConfig ) => {
+        this.assetManager.parse( childConfig ).then( ( child ) =>
+          scene.add( child ) );
+      } );
+    }
+
+    scene.name = config.name;
+
     return scene;
   }
 
-  addScene( name, scene ) {
-    this.scenes.set( name, scene );
+  addScene( scene ) {
+    this.scenes.set( scene.name, scene );
   }
 
   removeScene( name ) {
@@ -76,7 +86,10 @@ export class EnvironmentManager {
   }
 
   setupScene( scene ) {
-    scene.add( this.camera );
+    this.engine.three.Scene = scene;
+    scene.add( this.engine.three.Camera );
+    // const testBox = new Mesh( new BoxGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x0000ff } ) );
+    // scene.add( testBox );
   }
 
   cleanupScene( scene ) {

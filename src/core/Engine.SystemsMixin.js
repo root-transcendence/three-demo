@@ -30,7 +30,7 @@ export const SystemsMixin = {
   setupSystems() {
     this.addSystem( new UISystem( this.getManager( MenuManager ) ) );
     this.addSystem( new MovementSystem( this.getManager( "AssetComponent" ), this.getManager( "VelocityComponent" ) ) );
-    this.addSystem( new RenderingSystem( this.three ) );
+    this.addSystem( new RenderingSystem( this ) );
     this.addSystem( new SynchronizationSystem( this ) );
   }
 }

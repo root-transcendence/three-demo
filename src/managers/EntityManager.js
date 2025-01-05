@@ -1,4 +1,4 @@
-import { AmbientLight, Mesh, SpotLight } from "three";
+import { Mesh } from "three";
 import GeometryManager from "./GeometryManager";
 import MaterialManager from "./MaterialManager";
 
@@ -19,13 +19,5 @@ export default class EntityManager {
     const geo = await this._geometryManager.getGeometryWithRefAdd( geomertyId );
     const mat = await this._materialManager.getMaterialWithRefAdd( materialId );
     return new Mesh( geo, mat );
-  }
-
-  getLight() {
-    return new SpotLight( 0xffffff, 1 );
-  }
-
-  getAmbientLight() {
-    return new AmbientLight( 0xffffff, 0.1 );
   }
 }

@@ -68,10 +68,10 @@ export const ThreeMixin = {
     cameraControls.enabled = true;
     cameraControls.autoForward = false;
     cameraControls.dragToLook = true;
-    cameraControls.movementSpeed = 100;
+    cameraControls.movementSpeed = 10;
     cameraControls.domElement = WebGLRenderer.domElement;
     cameraControls.rollSpeed = Math.PI / 6;
-    camera.position.z = 500;
+    camera.position.z = 5;
     camera.lookAt( 0, 0, 0 );
   },
 
