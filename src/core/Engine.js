@@ -1,38 +1,26 @@
-import { AmbientLight, Clock, WebGLRenderer } from "three";
-import { CSS3DRenderer } from "three/examples/jsm/Addons.js";
-import CameraControls from "../controls/CameraControls";
-import { AssetManager } from "../ecs/managers/AssetManager";
-import ComponentManager from "../ecs/managers/ComponentManager";
-import { EntityManager } from "../ecs/managers/EntityManager";
-import { MenuManager } from "../ecs/managers/MenuManager";
-import ProcedureManager from "../ecs/managers/ProcedureManager";
-import MovementSystem from "../ecs/systems/MovementSystem";
-import { RenderingSystem } from "../ecs/systems/RenderingSystem";
-import { SynchronizationSystem } from "../ecs/systems/SyncronizationSystem";
-import { UISystem } from "../ecs/systems/UISystem";
-import { WrapperCamera } from "./Camera";
-import { WrapperScene } from "./Scene";
+import { ManagersMixin } from "./Engine.ManagersMixin";
+import { SystemsMixin } from "./Engine.SystemsMixin";
+import { ThreeMixin } from "./Engine.ThreeMixin";
 
 export default class Engine {
-
   /**
+   * 
+   * @param {{
+   * socket: string,
+   * element: HTMLElement
+   * }} engineConfig
+   * 
    * @property {HTMLElement} element
    * @property {Map<string, Function>} updateTasks
-   * @property {{WebGLRenderer, CSS3DRenderer, Scene, Camera, CameraControls}} three
-   * 
-   * @param
    */
   constructor( engineConfig ) {
+    this.config = engineConfig
     this.element = engineConfig.element;
     this.updateTasks = new Map();
-    this.three = {
-      Clock: new Clock(true),
-      WebGLRenderer: null,
-      CSS3DRenderer: null,
-      Scene: null,
-      Camera: null,
-      CameraControls: null
-    };
+    this.initThree();
+    this.initManagers();
+    this.initSystems();
+    window.engine = this;
   }
 
   /**
@@ -54,114 +42,25 @@ export default class Engine {
   march() {
     const animate = () => {
       requestAnimationFrame( animate );
-      this.update();
+      this.#update();
     };
 
+    this.activateAllSystems();
     animate();
   }
 
-  update() {
+  #update() {
     Object.values( this.systems )
+      .filter( s => s.state === "active" )
       .sort( ( a, b ) => a.order - b.order )
       .forEach( ( system ) => system.update() );
   }
 
   setup() {
-    this.setupRenderer();
-    this.setupCamera();
-    this.setupScene();
+    this.setupThree();
     this.setupManagers();
     this.setupSystems();
-
-    window.addEventListener( "resize", this._updateSizes.bind( this ) );
-    window.addEventListener( "DOMContentLoaded", this._updateSizes.bind( this ), { once: true } );
-  }
-
-  setupRenderer() {
-    const webglRenderer = new WebGLRenderer( { powerPreference: "high-performance" } );
-    const cssRenderer = new CSS3DRenderer();
-
-    this.three.WebGLRenderer = webglRenderer;
-    this.three.CSS3DRenderer = cssRenderer;
-
-    cssRenderer.domElement.style.position = "absolute";
-    cssRenderer.domElement.style.zIndex = 1;
-    cssRenderer.domElement.style.pointerEvents = "none";
-
-    webglRenderer.setClearColor( 0x000000 );
-
-    this.element.appendChild( webglRenderer.domElement );
-    this.element.appendChild( cssRenderer.domElement );
-  }
-
-  setupCamera() {
-    const { WebGLRenderer } = this.three;
-    const camera = new WrapperCamera();
-    const cameraControls = new CameraControls( camera, WebGLRenderer.domElement );
-
-    this.three.Camera = camera;
-    this.three.CameraControls = cameraControls;
-
-
-    cameraControls.enabled = true;
-    cameraControls.autoForward = false;
-    cameraControls.dragToLook = true;
-    cameraControls.movementSpeed = 100;
-    cameraControls.domElement = WebGLRenderer.domElement;
-    cameraControls.rollSpeed = Math.PI / 6;
-    camera.position.z = 500;
-    camera.lookAt( 0, 0, 0 );
-  }
-
-  setupScene() {
-    const { Camera } = this.three;
-    const scene = new WrapperScene();
-
-    this.three.Scene = scene;
-
-    scene.add( Camera );
-
-    const ambientLight = new AmbientLight( 0xffffff, 1 );
-
-    scene.add( ambientLight );
-  }
-
-  setupManagers() {
-    this.managers = {
-      EntityManager: new EntityManager(),
-      MenuManager: new MenuManager( this.three.Scene ),
-      ProcedureManager: new ProcedureManager( this ),
-      AssetManager: new AssetManager(),
-      /* Component Managers */
-      PositionComponentManager: new ComponentManager( "PositionComponent" ),
-      VelocityComponentManager: new ComponentManager( "VelocityComponent" ),
-      AssetComponentManager: new ComponentManager( "AssetComponent" ),
-    };
-    // Object.values( this.managers )
-    //   .filter( manager => manager instanceof ComponentManager )
-    //   .forEach( QuerySystem.registerComponentManager );
-  }
-
-  setupSystems() {
-    this.systems = {
-      // QuerySystem: new QuerySystem( this.managers );
-      UISystem: new UISystem( this.managers.MenuManager ),
-      MovementSystem: new MovementSystem( this.managers.PositionComponentManager, this.managers.VelocityComponentManager ),
-      RenderingSystem: new RenderingSystem( this.three ),
-      SynchronizationSystem: new SynchronizationSystem( this.managers.PositionComponentManager, this.managers.VelocityComponentManager, this.managers.AssetComponentManager ),
-    }
-  }
-
-  _updateSizes() {
-    const { width, height } = this.element.getBoundingClientRect();
-    const { WebGLRenderer, CSS3DRenderer, Camera } = this.three;
-
-    Camera.aspect = width / height;
-    Camera.updateProjectionMatrix();
-
-    WebGLRenderer.setSize( width, height );
-    CSS3DRenderer.setSize( width, height );
-
-    WebGLRenderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
   }
 }
+
+Object.assign( Engine.prototype, ThreeMixin, ManagersMixin, SystemsMixin );

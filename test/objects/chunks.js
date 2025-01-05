@@ -21,7 +21,7 @@ import {
 
 export const CHUNK_SIZE = 1000;
 export const RENDER_DISTANCE = 5;
-export const BLACKHOLE_DISTRIBUTION = 50;
+export const BLACKHOLE_DISTRIBUTION = 500;
 
 export const blackHoles = {};
 
@@ -173,9 +173,9 @@ export function updateVisibleChunks( camera, scene, clock ) {
           generateBlackHolesForChunks( cx, cy, cz, scene );
 
           // (Optional) debug helper
-          // const helper = createChunkHelper(cx, cy, cz, CHUNK_SIZE);
-          // chunkHelpers[chunkKey] = helper;
-          // scene.add(helper);
+          const helper = createChunkHelper(cx, cy, cz, CHUNK_SIZE);
+          chunkHelpers[chunkKey] = helper;
+          scene.add(helper);
         }
       }
     }

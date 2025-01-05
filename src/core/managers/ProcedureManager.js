@@ -1,12 +1,12 @@
 /**
  * @class ProcedureManager
  * 
- * @typedef {import("../../core/Engine").default} Engine
+ * @typedef {import("../Engine").default} Engine
  * 
  * @property {Engine} engine
  * @property {Map<number, {procedure: Procedure, collectedRequirements: any}>} procedures
  */
-class ProcedureManager {
+export class ProcedureManager {
   #nextProcedureId = 0;
   procedures;
 
@@ -56,6 +56,7 @@ class ProcedureManager {
 
     if ( startOnAdd ) {
       try {
+        console.log( `Starting procedure: ${procedure.name}` );
         start( collectedRequirements );
       } catch ( error ) {
         procedure.state = "error";
@@ -250,6 +251,3 @@ export class Procedure {
     return this.#end;
   }
 }
-
-
-export default ProcedureManager;

@@ -1,5 +1,5 @@
 import { AmbientLight, Camera } from "three";
-import { WrapperScene } from "../core/Scene";
+import { WrapperScene } from "../Scene";
 import { AssetManager } from "./AssetManager";
 
 export class EnvironmentManager {

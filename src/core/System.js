@@ -1,10 +1,21 @@
+/**
+ * System class
+ * 
+ * @class System
+ */
 export default class System {
 
+  /**
+   * 
+   * @param {{order: number, interval: number}} config
+   * 
+   * @property {"passive" | "active" | "crashed"} state
+   */
   constructor( config ) {
     this.order = config.order;
     this.interval = config.interval;
     this.lastUpdate = 0;
-    this.componentTypes = config.componentTypes;
+    this.state = "passive";
   }
 
   set update( fn ) {
@@ -15,6 +26,10 @@ export default class System {
     return this.performUpdate.bind( this );
   }
 
+  activate() {
+    this.state = "active";
+  }
+
   performUpdate() {
     const now = performance.now();
     if ( now - this.lastUpdate >= this.interval ) {
@@ -23,4 +38,3 @@ export default class System {
     }
   }
 }
-

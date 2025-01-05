@@ -1,4 +1,4 @@
-export default class ComponentManager {
+export class ComponentManager {
   constructor( componentType ) {
     this.components = new Map();
     this.componentType = componentType;

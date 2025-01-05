@@ -1,13 +1,15 @@
 import SystemConfig from "../../config/SystemConfig";
+import Engine from "../../core/Engine";
 import System from "../System";
 
 export class SynchronizationSystem extends System {
-  constructor( positionManager, velocityManager, assetComponents ) {
+  /**
+   * 
+   * @param {Engine} engine 
+   */
+  constructor( engine ) {
     super( SystemConfig.SynchronizationSystem );
-    this.positionManager = positionManager;
-    this.velocityManager = velocityManager;
-    this.assetComponents = assetComponents;
-
+    this.engine = engine;
     this.update = ( serverState ) => {
       if ( !serverState ) {
         return;

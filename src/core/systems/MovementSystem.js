@@ -1,7 +1,7 @@
 import SystemConfig from "../../config/SystemConfig";
 import System from "../System";
 
-export default class MovementSystem extends System {
+export class MovementSystem extends System {
   constructor( positions, velocities ) {
     super( SystemConfig.MovementSystem );
     this.positions = positions;
