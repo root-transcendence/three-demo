@@ -1,9 +1,9 @@
 export class MenuManager {
-  constructor( scene ) {
+  constructor( camera ) {
     this.menus = new Map();
     this.previousMenu = null;
     this.activeMenu = null;
-    this.scene = scene;
+    this.camera = camera;
   }
 
   addMenu( menu ) {
@@ -20,10 +20,10 @@ export class MenuManager {
     this.menus.forEach( ( menu, id ) => {
       if ( id === menuId ) {
         menu.active = true;
-        this.scene.add( menu.object );
+        this.camera.add( menu.object );
       } else {
         menu.active = false;
-        this.scene.remove( menu.object );
+        this.camera.remove( menu.object );
       }
     } );
   }
@@ -44,7 +44,7 @@ export class MenuManager {
 
       currentMenu.active = false;
 
-      this.scene.remove( currentMenu.object );
+      this.camera.remove( currentMenu.object );
       this.previousMenu = this.activeMenu;
     }
 
@@ -58,7 +58,7 @@ export class MenuManager {
         newMenu.transitionIn();
       }
 
-      this.scene.add( newMenu.object );
+      this.camera.add( newMenu.object );
 
     }
   }
@@ -68,13 +68,13 @@ export class MenuManager {
 
     if ( menu ) {
       this.menus.delete( menuId );
-      this.scene.remove( menu.object );
+      this.camera.remove( menu.object );
     }
   }
 
   clearMenus() {
     this.menus.forEach( menu => {
-      this.scene.remove( menu.object );
+      this.camera.remove( menu.object );
     } );
     this.menus.clear();
   }

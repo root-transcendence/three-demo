@@ -2,7 +2,7 @@ export class WebSocketManager {
 
   constructor( url ) {
     this.url = url;
-    this.websocket = new WebSocket( url ); // Ensure the URL starts with 'wss://'
+    this.websocket = new WebSocket( url );
     this.websocket.onopen = () => console.log( 'Connected to server via WSS' );
     this.websocket.onmessage = ( event ) => this.onMessage( event );
     this.websocket.onerror = ( event ) => console.error( 'WebSocket error:', event );

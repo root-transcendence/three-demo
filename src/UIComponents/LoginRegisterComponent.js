@@ -1,6 +1,6 @@
 import { CSS3DObject } from 'three/examples/jsm/Addons';
-import { ButtonComponent, DivComponent, FormComponent, InputComponent, LabelComponent, TextComponent } from '../ecs/components/Type.Component.js';
-import { withEventHandlers } from '../ecs/components/UIComponent.Util.js';
+import { ButtonComponent, DivComponent, FormComponent, InputComponent, LabelComponent, TextComponent } from '../core/components/Type.Component.js';
+import { withEventHandlers } from '../core/components/UIComponent.Util.js';
 
 
 function loginFormComponent() {
