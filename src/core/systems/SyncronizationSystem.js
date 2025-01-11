@@ -1,36 +1,43 @@
-import SystemConfig from "../../config/SystemConfig";
 import Engine from "../../core/Engine";
 import System from "../System";
+import { Events, EventSystem } from "./EventSystem";
 
 export class SynchronizationSystem extends System {
   /**
    * 
-   * @param {Engine} engine 
+   * @param {Engine} engine
    */
-  constructor( engine ) {
-    super( SystemConfig.SynchronizationSystem );
+  constructor( config, engine ) {
+    // super( SystemConfig.SynchronizationSystem );
+    super( config );
+
     this.engine = engine;
-    this.update = ( serverState ) => {
-      if ( !serverState ) {
-        return;
+    this.positionManager = engine.getManager( "PositionComponent" );
+    this.velocityManager = engine.getManager( "VelocityComponent" );
+    EventSystem.on( Events.SERVER_UPDATE, this.update.bind( this ) )
+  }
+
+  update( serverState ) {
+
+    if ( !serverState ) {
+      return;
+    }
+
+    for ( const entity of Object.keys( serverState ) ) {
+      const state = serverState[entity];
+      const position = this.positionManager.getComponent( parseInt( entity ) );
+      const velocity = this.velocityManager.getComponent( parseInt( entity ) );
+
+      if ( position ) {
+        position.x = state.position.x;
+        position.y = state.position.y;
+        position.z = state.position.z;
       }
 
-      for ( const entity of Object.keys( serverState ) ) {
-        const state = serverState[entity];
-        const position = this.positionManager.getComponent( parseInt( entity ) );
-        const velocity = this.velocityManager.getComponent( parseInt( entity ) );
-
-        if ( position ) {
-          position.x = state.position.x;
-          position.y = state.position.y;
-          position.z = state.position.z;
-        }
-
-        if ( velocity ) {
-          velocity.vx = state.velocity.vx;
-          velocity.vy = state.velocity.vy;
-          velocity.vz = state.velocity.vz;
-        }
+      if ( velocity ) {
+        velocity.vx = state.velocity.vx;
+        velocity.vy = state.velocity.vy;
+        velocity.vz = state.velocity.vz;
       }
     }
   }

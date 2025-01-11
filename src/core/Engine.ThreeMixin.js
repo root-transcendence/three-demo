@@ -1,6 +1,6 @@
-import { AmbientLight, Clock, WebGLRenderer } from "three";
+import { AmbientLight, Clock, Object3D, WebGLRenderer } from "three";
 import { CSS3DRenderer } from "three/examples/jsm/Addons.js";
-import { CameraControls } from "../controls/CameraControls";
+import { CustomFlyControls } from "../controls/CustomFlyControls";
 import { WrapperCamera } from "./Camera";
 import { WrapperScene } from "./Scene";
 
@@ -13,14 +13,26 @@ export const ThreeMixin = {
       CSS3DRenderer: null,
       Scene: null,
       Camera: null,
-      CameraControls: null
+      CustomFlyControls: null,
+      CameraPivot: null
     };
+  },
+
+  /**
+   * 
+   * @param {"Clock" | "WebGLRenderer" | "CSS3DRenderer" | "Scene" | "Camera" | "CustomFlyControls"} key 
+   * 
+   * @return {Clock | WebGLRenderer | CSS3DRenderer | WrapperScene | WrapperCamera | CustomFlyControls}
+   */
+  getThree( key ) {
+    return this.three[key];
   },
 
   setupThree() {
     this.setupRenderer();
-    this.setupCamera();
     this.setupScene();
+    this.setupCamera( this.three.Scene );
+    this.setupControls( this.three.Camera, this.three.WebGLRenderer.domElement );
 
     window.addEventListener( "resize", this.updateSizes.bind( this ) );
     window.addEventListener( "DOMContentLoaded", this.updateSizes.bind( this ), { once: true } );
@@ -56,35 +68,54 @@ export const ThreeMixin = {
     this.element.appendChild( cssRenderer.domElement );
   },
 
-  setupCamera() {
-    const { WebGLRenderer } = this.three;
+  setupCamera( scene ) {
     const camera = new WrapperCamera();
-    const cameraControls = new CameraControls( camera, WebGLRenderer.domElement );
+    const cameraPivot = new Object3D();
 
     this.three.Camera = camera;
-    this.three.CameraControls = cameraControls;
+    this.three.CameraPivot = cameraPivot;
 
+    cameraPivot.add( camera );
+
+    camera.position.set( 0, 2, 4 );
+    camera.lookAt( 0, 0, 0 );
+
+
+    scene.add( cameraPivot );
+  },
+
+  setupControls( camera, domElement ) {
+    const cameraControls = new CustomFlyControls( camera, domElement );
+
+    this.three.CustomFlyControls = cameraControls;
 
     cameraControls.enabled = true;
-    cameraControls.autoForward = false;
-    cameraControls.dragToLook = true;
-    cameraControls.movementSpeed = 10;
-    cameraControls.domElement = WebGLRenderer.domElement;
-    cameraControls.rollSpeed = Math.PI / 6;
-    camera.position.z = 5;
-    camera.lookAt( 0, 0, 0 );
+    cameraControls.domElement = domElement;
   },
 
   setupScene() {
-    const { Camera } = this.three;
     const scene = new WrapperScene();
 
     this.three.Scene = scene;
-
-    scene.add( Camera );
 
     const ambientLight = new AmbientLight( 0xffffff, 1 );
 
     scene.add( ambientLight );
   },
+
+  /**
+   * @method setInteractionCanvas
+   * 
+   * @param {"webgl" | "css3d"} renderer
+   */
+  setInteractionCanvas( renderer ) {
+    const { CSS3DRenderer, WebGLRenderer } = this.three;
+    const element = CSS3DRenderer.domElement;
+    const transformerElement = element.children[0];
+    const webglState = renderer == "webgl" ? "all" : "none";
+    const css3dState = renderer == "css3d" ? "all" : "none";
+    WebGLRenderer.domElement.style.pointerEvents = webglState;
+    element.style.pointerEvents = css3dState;
+    transformerElement.style.pointerEvents = css3dState;
+  }
 }

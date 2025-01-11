@@ -1,4 +1,5 @@
 import { MenuManager } from "./managers/MenuManager";
+import InputSystem from "./systems/InputSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { RenderingSystem } from "./systems/RenderingSystem";
 import { SynchronizationSystem } from "./systems/SyncronizationSystem";
@@ -27,10 +28,11 @@ export const SystemsMixin = {
     return this.systems[name instanceof Function ? name.name : name];
   },
 
-  setupSystems() {
-    this.addSystem( new UISystem( this.getManager( MenuManager ) ) );
-    this.addSystem( new MovementSystem( this.getManager( "AssetComponent" ), this.getManager( "VelocityComponent" ) ) );
-    this.addSystem( new RenderingSystem( this ) );
-    this.addSystem( new SynchronizationSystem( this ) );
-  }
+  setupSystems( configs ) {
+    this.addSystem( new UISystem( configs[UISystem.name], this.getManager( MenuManager ) ) );
+    this.addSystem( new MovementSystem( configs[MovementSystem.name], this.getManager( "AssetComponent" ), this.getManager( "VelocityComponent" ) ) );
+    this.addSystem( new RenderingSystem( configs[RenderingSystem.name], this ) );
+    this.addSystem( new SynchronizationSystem( configs[SynchronizationSystem.name], this ) );
+    this.addSystem( new InputSystem( configs[InputSystem.name], this ) )
+  },
 }

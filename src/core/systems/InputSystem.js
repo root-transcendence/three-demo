@@ -1,16 +1,37 @@
+import Engine from "../Engine";
+import { InputManager } from "../managers/InputManager";
+import { WebSocketManager } from "../managers/WebSocketManager";
 import System from "../System";
 
+/**
+ * 
+ * @property {InputManager} inputManager 
+ */
 class InputSystem extends System {
-  constructor( inputManager ) {
-    super();
-    this.inputManager = inputManager;
+
+  /**
+   * 
+   * @param {object} config 
+   * @param {Engine} engine
+   * 
+   */
+  constructor( config, engine ) {
+    super( config );
+    this.state = "passive"
+    this.engine = engine;
+    this.inputManager = this.engine.getManager( InputManager );
+    this.websocketManager = this.engine.getManager( WebSocketManager );
+
+    this.update = () => {
+      const input = this.inputManager.getInputs();
+      if ( input ) {
+
+      }
+    }
   }
 
-  update() {
-    const input = this.inputManager.getInput();
-    if ( input ) {
-      console.log( input );
-    }
+  activate() {
+    this.inputManager.flush();
   }
 }
 

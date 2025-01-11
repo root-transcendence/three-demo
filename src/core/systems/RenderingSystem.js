@@ -1,18 +1,24 @@
-import SystemConfig from "../../config/SystemConfig";
+import Engine from "../Engine";
 import System from "../System";
 
 export class RenderingSystem extends System {
 
-  constructor( engine ) {
-    super( SystemConfig.RenderingSystem );
+  /**
+   * 
+   * @param {Engine} engine 
+   */
+  constructor( config, engine ) {
+    // super( SystemConfig.RenderingSystem );
+    super( config );
 
     this.engine = engine;
-    this.three = engine.three;
 
     this.update = () => {
-      this.three.CameraControls.update( this.three.Clock.getDelta() );
-      this.three.WebGLRenderer.render( this.three.Scene, this.three.Camera );
-      this.three.CSS3DRenderer.render( this.three.Scene, this.three.Camera );
+      const camera = this.engine.getThree( "Camera" );
+      const scene = this.engine.getThree( "Scene" );
+      this.engine.getThree( "CustomFlyControls" ).update( this.engine.getThree( "Clock" ).getDelta() );
+      this.engine.getThree( "WebGLRenderer" ).render( scene, camera );
+      this.engine.getThree( "CSS3DRenderer" ).render( scene, camera );
     }
   }
 }

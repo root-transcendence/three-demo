@@ -10,6 +10,7 @@ export default class System {
    * @param {{order: number, interval: number}} config
    * 
    * @property {"passive" | "active" | "crashed"} state
+   * 
    */
   constructor( config ) {
     this.order = config.order;
@@ -31,6 +32,7 @@ export default class System {
   }
 
   performUpdate() {
+    if ( this.state != "active" ) return;
     const now = performance.now();
     if ( now - this.lastUpdate >= this.interval ) {
       this._update( this.interval );

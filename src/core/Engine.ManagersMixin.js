@@ -2,6 +2,7 @@ import { AssetManager } from "./managers/AssetManager";
 import { ComponentManager } from "./managers/ComponentManager";
 import { EntityManager } from "./managers/EntityManager";
 import { EnvironmentManager } from "./managers/EnvironmentManager";
+import { InputManager } from "./managers/InputManager";
 import { MenuManager } from "./managers/MenuManager";
 import { ProcedureManager } from "./managers/ProcedureManager";
 import { WebSocketManager } from "./managers/WebSocketManager";
@@ -29,6 +30,7 @@ export const ManagersMixin = {
     this.addManager( new EntityManager() );
     this.addManager( new MenuManager( this.three.Camera ) );
     this.addManager( new ProcedureManager( this ) );
+    this.addManager( new InputManager() );
     this.addManager( new AssetManager() );
     this.addManager( new EnvironmentManager( this ) );
     this.addManager( new WebSocketManager( "/asd" ) );

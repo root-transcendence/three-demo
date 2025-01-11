@@ -1,14 +1,20 @@
-class EventSystem {
-  constructor() {
-    this.listeners = {};
-  }
+export const EventSystem = {
 
-  on(event, listener) {
-    if (!this.listeners[event]) this.listeners[event] = [];
-    this.listeners[event].push(listener);
-  }
+  listeners: {},
 
-  emit(event, data) {
-    (this.listeners[event] || []).forEach(listener => listener(data));
+  on( event, listener ) {
+    if ( !this.listeners[event] ) this.listeners[event] = [];
+    this.listeners[event].push( listener );
+  },
+
+  emit( event, data ) {
+    ( this.listeners[event] || [] ).forEach( listener => listener( data ) );
   }
+}
+
+export const Events = {
+  SERVER_UPDATE: 1,
+  GAME_START: 2,
+  LOGIN: 3,
+  LOGOUT: 4,
 }

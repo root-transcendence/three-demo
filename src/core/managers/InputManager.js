@@ -1,14 +1,19 @@
 export class InputManager {
   constructor() {
-    this.callbacks = new Map();
+    this.inputs = [];
   }
 
-  on( event, callback ) {
-    this.callbacks.set( event, callback );
+  getInputs() {
+    const result = [...this.inputs];
+    this.inputs = [];
+    return result;
   }
 
-  trigger( event ) {
-    const callback = this.callbacks.get( event );
-    if ( callback ) callback();
+  addInput( input ) {
+    this.inputs.push( { timestamp: performance.now(), input } );
+  }
+
+  flush() {
+    this.inputs = [];
   }
 }

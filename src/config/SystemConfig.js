@@ -7,10 +7,14 @@ const SystemConfig = {
   MovementSystem: {
     order: 1,
     interval: 1000 / 120,
-    components: [ "PositionComponent", "VelocityComponent" ],
+    components: ["PositionComponent", "VelocityComponent"],
+  },
+  InputSystem: {
+    order: 2,
+    interval: 1000 / 120,
   },
   UISystem: {
-    order: 2,
+    order: 3,
     interval: 1000 / 60,
   },
   RenderingSystem: {

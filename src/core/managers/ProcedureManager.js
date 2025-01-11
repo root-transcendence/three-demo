@@ -88,7 +88,7 @@ export class ProcedureManager {
       console.log( `Starting procedure: ${procedureId} with name ${entry.procedure.name}` );
 
       try {
-        entry.procedure.start( entry.requirements );
+        entry.procedure.start( entry.collectedRequirements );
       } catch ( error ) {
         entry.procedure.state = "error";
         console.error( `Error starting procedure: ${procedureId} with name ${entry.procedure.name}` );
@@ -104,7 +104,7 @@ export class ProcedureManager {
       console.log( `Ending procedure: ${procedureId} with name ${entry.procedure.name}` );
 
       try {
-        entry.procedure.end( entry.requirements );
+        entry.procedure.end( entry.collectedRequirements );
       } catch ( error ) {
         entry.procedure.state = "error";
         console.error( `Error ending procedure: ${procedureId} with name ${entry.procedure.name}` );

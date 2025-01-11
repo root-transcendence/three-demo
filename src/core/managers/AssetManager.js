@@ -1,4 +1,4 @@
-import { AudioLoader, MathUtils, ObjectLoader, TextureLoader } from "three";
+import { AmbientLight, AudioLoader, BufferGeometryLoader, DirectionalLight, HemisphereLight, MathUtils, Object3D, ObjectLoader, PointLight, SpotLight, TextureLoader } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 class AssetManager {
@@ -15,6 +15,7 @@ class AssetManager {
       object: new ObjectLoader(),
       model: new GLTFLoader(),
       audio: new AudioLoader(),
+      geometry: new BufferGeometryLoader(),
     };
 
     for ( const type in this.loaders ) {
@@ -99,10 +100,40 @@ class AssetManager {
   }
 
   createLight( config ) {
-    const { type, color, intensity } = config;
-    const light = new type( color, intensity );
+    let light;
+
+    switch ( config.type ) {
+      case "AmbientLight":
+        light = new AmbientLight( config.color || 0xffffff, config.intensity || 1 );
+        break;
+      case "DirectionalLight":
+        light = new DirectionalLight( config.color || 0xffffff, config.intensity || 1 );
+        if ( config.position ) light.position.set( ...config.position );
+        break;
+      case "PointLight":
+        light = new PointLight( config.color || 0xffffff, config.intensity || 1, config.distance || 0, config.decay || 1 );
+        if ( config.position ) light.position.set( ...config.position );
+        break;
+      case "SpotLight":
+        light = new SpotLight( config.color || 0xffffff, config.intensity || 1, config.distance || 0, config.angle || Math.PI / 3, config.penumbra || 0, config.decay || 1 );
+        if ( config.position ) light.position.set( ...config.position );
+        if ( config.target ) {
+          const target = new Object3D();
+          target.position.set( ...config.target );
+          light.target = target;
+        }
+        break;
+      case "HemisphereLight":
+        light = new HemisphereLight( config.skyColor || 0xffffff, config.groundColor || 0x000000, config.intensity || 1 );
+        break;
+      default:
+        console.warn( `Unknown light type: ${config.type}` );
+        return null;
+    }
+
     return light;
   }
+
 
   logProgress( e, type, key ) {
     console.log( `Loading ${type} ${key}: ${( e.loaded / e.total ) * 100}%` );

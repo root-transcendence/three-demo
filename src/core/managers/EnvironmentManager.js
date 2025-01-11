@@ -19,8 +19,8 @@ export class EnvironmentManager {
     this.assetManager = this.engine.getManager( AssetManager );
   }
 
-  loadConfig( config ) {
-    config.scenes.forEach( ( sceneConfig ) => {
+  loadScenes( scenes ) {
+    scenes.forEach( ( sceneConfig ) => {
       const scene = this.createSceneFromConfig( sceneConfig );
       this.addScene( scene );
     } );
@@ -87,7 +87,7 @@ export class EnvironmentManager {
 
   setupScene( scene ) {
     this.engine.three.Scene = scene;
-    scene.add( this.engine.three.Camera );
+    scene.add( this.engine.three.CameraPivot );
     // const testBox = new Mesh( new BoxGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x0000ff } ) );
     // scene.add( testBox );
   }

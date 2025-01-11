@@ -1,9 +1,8 @@
-import SystemConfig from "../../config/SystemConfig";
 import System from "../System";
 
 export class UISystem extends System {
-  constructor( menuManager ) {
-    super( SystemConfig.UISystem );
+  constructor( config, menuManager ) {
+    super( config );
 
     this.menuManager = menuManager;
 
