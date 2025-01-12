@@ -167,6 +167,7 @@ export function createLoginForm() {
       octagonInner.elements = [
         loginFrom
       ]
+      octagonInner.render();
     }
   } );
 
@@ -175,6 +176,7 @@ export function createLoginForm() {
       octagonInner.elements = [
         registerForm
       ]
+      octagonInner.render();
     }
   } );
 

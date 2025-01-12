@@ -56,6 +56,7 @@ export class CustomFlyControls extends FlyControls {
     this._rotationVector = new Vector3( 0, 0, 0 );
     this._lastQuaternion = new Quaternion();
     this._lastPosition = new Vector3();
+    this._deltaQuaternion = new Quaternion();
     this._status = 0;
 
     if ( domElement !== null ) {
@@ -264,8 +265,10 @@ export class CustomFlyControls extends FlyControls {
       8 * ( 1 - this._lastQuaternion.dot( object.quaternion ) ) > _EPS
     ) {
       this.dispatchEvent( { type: 'change' } );
+      this._deltaQuaternion.setFromUnitVectors( this._lastQuaternion, object.quaternion );
       this._lastQuaternion.copy( object.quaternion );
       this._lastPosition.copy( object.position );
+
     }
 
   }

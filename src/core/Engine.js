@@ -24,9 +24,9 @@ export default class Engine {
    * @property {Map<string, Function>} updateTasks
    * 
    */
-  constructor( engineConfig ) {
-    this.config = engineConfig
-    this.element = engineConfig.element;
+  constructor( { element, config } ) {
+    this.config = config;
+    this.element = element;
     this.updateTasks = new Map();
     this.initThree();
     this.initManagers();
@@ -35,6 +35,7 @@ export default class Engine {
   }
 
   march() {
+    this.loadConfig( this.config );
     const animate = () => {
       requestAnimationFrame( animate );
       this.#update();
@@ -60,7 +61,7 @@ export default class Engine {
   setup() {
     this.setupThree();
     this.setupManagers();
-    this.setupSystems( this.config.systems );
+    this.setupSystems();
   }
 
   loadConfig( config ) {
@@ -79,10 +80,8 @@ export default class Engine {
         const cameraPivot = this.getThree( "CameraPivot" );
         scene.add( ship );
         this._ship = ship;
-        
 
         this.getThree( "CustomFlyControls" ).control( this._ship );
-
 
         this.updateTasks.set( "lerpCamera", () => {
 
@@ -91,7 +90,7 @@ export default class Engine {
           cameraPivot.position.lerp( this._ship.position, interpFactor );
 
           const desiredQuat = this._ship.quaternion.clone();
-          cameraPivot.quaternion.slerp( desiredQuat, interpFactor );
+          cameraPivot.quaternion.slerp( desiredQuat, 1 );
         } );
       } );
   }

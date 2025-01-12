@@ -1,5 +1,4 @@
 import { gameConfig } from "./config/GameConfig";
-import SystemConfig from "./config/SystemConfig";
 import Engine from "./core/Engine";
 import { EnvironmentManager } from "./core/managers/EnvironmentManager";
 import { Procedure, ProcedureManager } from "./core/managers/ProcedureManager";
@@ -21,7 +20,7 @@ export class Game {
   * @property {ProcedureManager} procedureManager
   */
   constructor( element ) {
-    this.engine = new Engine( { element, systems: SystemConfig } );
+    this.engine = new Engine( { element, config: gameConfig } );
     document.addEventListener( "DOMContentLoaded", this.start.bind( this ) );
   }
 
@@ -31,16 +30,15 @@ export class Game {
 
     const procedure = new Procedure( testProcedure );
 
-    this.engine.loadConfig( gameConfig );
     this.engine.getManager( EnvironmentManager ).setActiveScene( "Test Scene" );
 
     this.procedureManager = this.engine.getManager( ProcedureManager );
 
-    // this.procedureManager.addProcedure( procedure, true );
+    this.procedureManager.addProcedure( procedure );
 
-    // document.addEventListener( "click", () => {
-    //   this.procedureManager.endProcedure( procedure );
-    // } );
+    document.addEventListener( "click", () => {
+      this.procedureManager.endProcedure( procedure );
+    } );
 
     // setTimeout( () => {
     //   this.procedureManager.endProcedure( procedure );

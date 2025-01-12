@@ -70,6 +70,11 @@ export const gameConfig = {
       name: "Test Scene",
       lights: [
         {
+          "type": "AmbientLight",
+          "color": "white",
+          "intensity": .1
+        },
+        {
           type: "PointLight",
           color: "yellow",
           intensity: 1,
@@ -117,6 +122,7 @@ export const gameConfig = {
               "roughness": 1,
               "metalness": 0,
               "emissive": 0,
+              "side": 2,
               "envMapRotation": [
                 0,
                 0,
@@ -178,6 +184,7 @@ export const gameConfig = {
               "color": 16777215,
               "roughness": 1,
               "metalness": 0,
+              "side": 2,
               "emissive": 0,
               "envMapRotation": [0, 0, 0,
                 "XYZ"],
@@ -214,6 +221,7 @@ export const gameConfig = {
               "color": 16777215,
               "roughness": 1,
               "metalness": 0,
+              "side": 2,
               "emissive": 0,
               "envMapRotation": [0, 0, 0,
                 "XYZ"],

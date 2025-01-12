@@ -1,4 +1,3 @@
-
 const SystemConfig = {
   SynchronizationSystem: {
     order: 0,
@@ -7,7 +6,6 @@ const SystemConfig = {
   MovementSystem: {
     order: 1,
     interval: 1000 / 120,
-    components: ["PositionComponent", "VelocityComponent"],
   },
   InputSystem: {
     order: 2,

@@ -16,6 +16,9 @@ export class DivComponent extends UIComponent {
 
   render() {
     if ( this.element ) {
+      this.elements.forEach( ( child ) => {
+        this.element.appendChild( child.render() );
+      });
       return this.element;
     }
 

@@ -1,3 +1,4 @@
+import SystemConfig from "./config/SystemConfig";
 import { MenuManager } from "./managers/MenuManager";
 import InputSystem from "./systems/InputSystem";
 import { MovementSystem } from "./systems/MovementSystem";
@@ -10,6 +11,7 @@ export const SystemsMixin = {
 
   initSystems() {
     this.systems = {};
+    this._systemConfigs = SystemConfig;
   },
 
   activateAllSystems() {
@@ -28,11 +30,11 @@ export const SystemsMixin = {
     return this.systems[name instanceof Function ? name.name : name];
   },
 
-  setupSystems( configs ) {
-    this.addSystem( new UISystem( configs[UISystem.name], this.getManager( MenuManager ) ) );
-    this.addSystem( new MovementSystem( configs[MovementSystem.name], this.getManager( "AssetComponent" ), this.getManager( "VelocityComponent" ) ) );
-    this.addSystem( new RenderingSystem( configs[RenderingSystem.name], this ) );
-    this.addSystem( new SynchronizationSystem( configs[SynchronizationSystem.name], this ) );
-    this.addSystem( new InputSystem( configs[InputSystem.name], this ) )
+  setupSystems() {
+    this.addSystem( new UISystem( this._systemConfigs[UISystem.name], this.getManager( MenuManager ) ) );
+    this.addSystem( new MovementSystem( this._systemConfigs[MovementSystem.name], this.getManager( "AssetComponent" ), this.getManager( "VelocityComponent" ) ) );
+    this.addSystem( new RenderingSystem( this._systemConfigs[RenderingSystem.name], this ) );
+    this.addSystem( new SynchronizationSystem( this._systemConfigs[SynchronizationSystem.name], this ) );
+    this.addSystem( new InputSystem( this._systemConfigs[InputSystem.name], this ) )
   },
 }
