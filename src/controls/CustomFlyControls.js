@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three';
-import { FlyControls } from 'three/examples/jsm/Addons.js';
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
 
 const _EPS = 0.00001;
 const _tmpQuaternion = new Quaternion();
@@ -33,8 +33,8 @@ export class CustomFlyControls extends FlyControls {
     this._yawVelocity = 0;   // Left/Right
     this._rollVelocity = 0;  // Clockwise/Counter-Clockwise
 
-    this._pitchAcceleration = 0.4;
-    this._pitchDeceleration = 0.5;
+    this._pitchAcceleration = 0.6;
+    this._pitchDeceleration = 0.4;
     this._maxPitchSpeed = 1.5;
 
     this._yawAcceleration = 0.6;
@@ -59,9 +59,15 @@ export class CustomFlyControls extends FlyControls {
     this._deltaQuaternion = new Quaternion();
     this._status = 0;
 
-    if ( domElement !== null ) {
-      this.connect();
-    }
+    this.proxyHandlers = {
+      keydown: this._customOnKeyDown.bind( this ),
+      keyup: this._customOnKeyUp.bind( this ),
+      pointermove: this._customOnPointerMove.bind( this ),
+      pointerup: this._customOnPointerUp.bind( this ),
+      pointercancel: this._customOnPointerCancel.bind( this ),
+      contextmenu: this._customOnContextMenu.bind( this )
+    };
+
   }
 
   control( object ) {
@@ -271,6 +277,39 @@ export class CustomFlyControls extends FlyControls {
 
     }
 
+  }
+
+  connect() {
+    window.addEventListener( 'keydown', this._customOnKeyDown.bind( this ) );
+    window.addEventListener( 'keyup', this._customOnKeyUp.bind( this ) );
+
+    this.domElement.addEventListener( 'pointermove', this._customOnPointerMove.bind( this ) );
+    this.domElement.addEventListener( 'pointerdown', this._customOnPointerDown.bind( this ) );
+    this.domElement.addEventListener( 'pointerup', this._customOnPointerUp.bind( this ) );
+    this.domElement.addEventListener( 'pointercancel', this._customOnPointerCancel.bind( this ) );
+    this.domElement.addEventListener( 'contextmenu', this._customOnContextMenu.bind( this ) );
+  }
+
+  _customOnKeyDown( event ) {
+    this._onKeyDown( event );
+   }
+  _customOnKeyUp( event ) {
+    this._onKeyUp( event );
+  }
+  _customOnPointerMove( event ) {
+    this._onPointerMove( event );
+  }
+  _customOnPointerDown( event ) {
+    this._onPointerDown( event );
+  }
+  _customOnPointerUp( event ) {
+    this._onPointerUp( event );
+  }
+  _customOnPointerCancel( event ) {
+    this._onPointerCancel( event );
+  }
+  _customOnContextMenu( event ) {
+    this._onContextMenu( event );
   }
 
 }

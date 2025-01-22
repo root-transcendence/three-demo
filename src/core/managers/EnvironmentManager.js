@@ -1,7 +1,7 @@
 import { AmbientLight } from "three";
-import Engine from "../Engine";
-import { WrapperScene } from "../Scene";
-import { AssetManager } from "./AssetManager";
+import Engine from "../Engine.js";
+import { WrapperScene } from "../Scene.js";
+import { AssetManager } from "./AssetManager.js";
 
 export class EnvironmentManager {
   /**
@@ -19,11 +19,12 @@ export class EnvironmentManager {
     this.assetManager = this.engine.getManager( AssetManager );
   }
 
-  loadScenes( scenes ) {
-    scenes.forEach( ( sceneConfig ) => {
+  async loadScenes( scenes ) {
+    scenes.map( ( sceneConfig ) => new Promise( resolve => {
       const scene = this.createSceneFromConfig( sceneConfig );
       this.addScene( scene );
-    } );
+      resolve();
+    } ) );
   }
 
   createSceneFromConfig( config ) {
@@ -42,9 +43,7 @@ export class EnvironmentManager {
     if ( config.assets ) {
       config.assets.forEach( ( assetConfig ) => {
         const asset = this.assetManager.get( assetConfig.key, assetConfig.type );
-        if ( asset ) {
-          scene.add( asset );
-        } else {
+        if ( !asset ) {
           this.assetManager.load( assetConfig.key, assetConfig.type, assetConfig.url )
         }
       } );

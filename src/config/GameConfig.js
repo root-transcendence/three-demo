@@ -1,5 +1,5 @@
-
 export const gameConfig = {
+  wssUrl: "ws://localhost:3949",
   ships: [
     {
       "geometries": [
@@ -69,35 +69,6 @@ export const gameConfig = {
     {
       name: "Test Scene",
       lights: [
-        {
-          "type": "AmbientLight",
-          "color": "white",
-          "intensity": .1
-        },
-        {
-          type: "PointLight",
-          color: "yellow",
-          intensity: 1,
-          position: [0, -5, 0],
-        },
-        {
-          type: "PointLight",
-          color: "yellow",
-          intensity: 1,
-          position: [0, 7, -5],
-        },
-        {
-          type: "PointLight",
-          color: "red",
-          intensity: 1,
-          position: [4, 7, -10],
-        },
-        {
-          type: "PointLight",
-          color: "blue",
-          intensity: 1,
-          position: [-4, -5, 10],
-        }
       ],
       assets: [],
       children: [
@@ -240,6 +211,72 @@ export const gameConfig = {
           }
         }
       ],
+    },
+    {
+      name: "Match",
+      lights: [
+        {
+          "type": "AmbientLight",
+          "color": "white",
+          "intensity": .1
+        },
+        {
+          type: "PointLight",
+          color: "yellow",
+          intensity: 1,
+          position: [0, -5, 0],
+        },
+        {
+          type: "PointLight",
+          color: "yellow",
+          intensity: 1,
+          position: [0, 7, -5],
+        },
+        {
+          type: "PointLight",
+          color: "red",
+          intensity: 1,
+          position: [4, 7, -10],
+        },
+        {
+          type: "PointLight",
+          color: "blue",
+          intensity: 1,
+          position: [-4, -5, 10],
+        }
+      ],
+      assets: [
+        {
+          type: "texture",
+          key: "luminaris_diffuse",
+          url: "/assets/materials/luminaris_diffuse.tga"
+        },
+        {
+          type: "texture",
+          key: "luminaris_emissive",
+          url: "/assets/materials/luminaris_emissive.tga"
+        },
+        {
+          type: "texture",
+          key: "luminaris_normal",
+          url: "/assets/materials/luminaris_normal.tga"
+        },
+        {
+          type: "texture",
+          key: "luminaris_roughness",
+          url: "/assets/materials/luminaris_roughness.tga"
+        },
+        {
+          type: "texture",
+          key: "luminaris_specular",
+          url: "/assets/materials/luminaris_specular.tga"
+        },
+        {
+          type: "model",
+          key: "luminaris_model",
+          url: "/assets/objects/luminaris.obj"
+        },
+      ]
     }
   ]
 }

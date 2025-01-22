@@ -1,11 +1,10 @@
-import SystemConfig from "./config/SystemConfig";
-import { MenuManager } from "./managers/MenuManager";
-import InputSystem from "./systems/InputSystem";
-import { MovementSystem } from "./systems/MovementSystem";
-import { RenderingSystem } from "./systems/RenderingSystem";
-import { SynchronizationSystem } from "./systems/SyncronizationSystem";
-import { UISystem } from "./systems/UISystem";
-
+import SystemConfig from "./config/SystemConfig.js";
+import { MenuManager } from "./managers/MenuManager.js";
+import InputSystem from "./systems/InputSystem.js";
+import { MovementSystem } from "./systems/MovementSystem.js";
+import { RenderingSystem } from "./systems/RenderingSystem.js";
+import { SynchronizationSystem } from "./systems/SyncronizationSystem.js";
+import { UISystem } from "./systems/UISystem.js";
 
 export const SystemsMixin = {
 

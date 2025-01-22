@@ -1,6 +1,6 @@
-import Engine from "../../core/Engine";
-import System from "../System";
-import { Events, EventSystem } from "./EventSystem";
+import Engine from "../../core/Engine.js";
+import System from "../System.js";
+import { Events, EventSystem } from "./EventSystem.js";
 
 export class SynchronizationSystem extends System {
   /**

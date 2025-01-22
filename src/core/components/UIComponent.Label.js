@@ -1,4 +1,4 @@
-import UIComponent from "./UIComponent";
+import UIComponent from "./UIComponent.js";
 
 export class LabelComponent extends UIComponent {
   constructor(id, props = {}) {

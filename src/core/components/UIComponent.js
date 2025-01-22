@@ -1,5 +1,5 @@
-import { CSS3DObject } from "three/examples/jsm/Addons.js";
-import Component from "../Components";
+import { CSS3DObject } from "../../../lib/three/examples/jsm/renderers/CSS3DRenderer.js";
+import Component from "../Components.js";
 
 class UIComponent extends Component {
   /**
@@ -43,8 +43,8 @@ class UIComponent extends Component {
   }
 
   applyAttributes( element ) {
-    if ( this.object ) {
-      for ( const [key, value] of Object.entries( this.object ) ) {
+    if ( this.attributes ) {
+      for ( const [key, value] of Object.entries( this.attributes ) ) {
         element[key] = value;
       }
     }

@@ -1,8 +1,18 @@
-import { AmbientLight, Clock, Object3D, WebGLRenderer } from "three";
-import { CSS3DRenderer } from "three/examples/jsm/Addons.js";
-import { CustomFlyControls } from "../controls/CustomFlyControls";
-import { WrapperCamera } from "./Camera";
-import { WrapperScene } from "./Scene";
+import { AmbientLight, Box3, Clock, Object3D, WebGLRenderer } from "three";
+import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
+import { CustomFlyControls } from "../controls/CustomFlyControls.js";
+import { WrapperCamera } from "./Camera.js";
+import { WrapperScene } from "./Scene.js";
+
+export const OtherMixin = {
+  getShipBB() {
+    const ship = this.getShip();
+
+    const bb = new Box3();
+    bb.setFromObject(ship, true);
+    return bb;
+  }
+}
 
 export const ThreeMixin = {
 
@@ -20,9 +30,9 @@ export const ThreeMixin = {
 
   /**
    * 
-   * @param {"Clock" | "WebGLRenderer" | "CSS3DRenderer" | "Scene" | "Camera" | "CustomFlyControls"} key 
+   * @param {"Clock" | "WebGLRenderer" | "CSS3DRenderer" | "Scene" | "Camera" | "CustomFlyControls" | "CameraPivot"} key 
    * 
-   * @return {Clock | WebGLRenderer | CSS3DRenderer | WrapperScene | WrapperCamera | CustomFlyControls}
+   * @return {Clock | WebGLRenderer | CSS3DRenderer | WrapperScene | WrapperCamera | CustomFlyControls | Object3D}
    */
   getThree( key ) {
     return this.three[key];

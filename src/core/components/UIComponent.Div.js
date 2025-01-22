@@ -1,38 +1,49 @@
-import UIComponent from "./UIComponent";
+import UIComponent from "./UIComponent.js";
 
 export class DivComponent extends UIComponent {
-  constructor(id, props = {}) {
-    super(id, props.styles, props.object, props.class);
+  constructor( id, props = {} ) {
+    super( id, props.styles, props.object, props.class );
     this.class = props.class || '';
     this.styles = props.styles || {};
-    this.elements = props.elements || [];
+    this._elements = props.elements || [];
 
-    this.expectedListeners = () => ({
+    this.expectedListeners = () => ( {
       click: this.onClick,
       mouseenter: this.onMouseEnter,
       mouseleave: this.onMouseLeave,
-    });
+    } );
+  }
+
+  /**
+   * @param {UIComponent[]} elements
+   */
+  set elements( elements ) {
+    this._elements = elements;
+    this._rendered = false;
+  }
+
+  get elements() {
+    return this._elements;
   }
 
   render() {
-    if ( this.element ) {
-      this.elements.forEach( ( child ) => {
-        this.element.appendChild( child.render() );
-      });
+    if ( this._rendered ) {
       return this.element;
     }
 
     this.element = this.createMenuElement();
 
-    if (this.object)
-      this.object.element = this.element;
+    if ( this._object )
+      this._object.element = this.element;
 
     const menuElement = this.element
 
     this.applyStyles( menuElement );
-    this.applyClasses(menuElement);
+    this.applyClasses( menuElement );
 
-    this.elements.forEach( ( child ) => {
+    menuElement.innerHTML = '';
+
+    this._elements.forEach( ( child ) => {
       menuElement.appendChild( child.render() );
     } );
 
@@ -41,6 +52,8 @@ export class DivComponent extends UIComponent {
     }
 
     this.addEventListeners( menuElement, this.expectedListeners() );
+
+    this._rendered = true;
 
     return menuElement;
   }
@@ -52,10 +65,10 @@ export class DivComponent extends UIComponent {
   }
 
   addElement( element ) {
-    this.elements.push( element );
+    this._elements.push( element );
   }
 
   removeElement( element ) {
-    this.elements = this.elements?.filter( ( e ) => e !== element );
+    this._elements = this._elements?.filter( ( e ) => e !== element );
   }
 }

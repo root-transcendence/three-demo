@@ -1,4 +1,4 @@
-import System from "../System";
+import System from "../System.js";
 
 export class MovementSystem extends System {
   constructor( config, positions, velocities ) {

@@ -1,5 +1,5 @@
-import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "three";
-import { FlyControls } from "three/examples/jsm/Addons.js";
+import { FlyControls } from "../lib/three/examples/jsm/controls/FlyControls.js";
+import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from "../lib/three/three.module.min.js";
 
 export function initThree() {
   const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );

@@ -1,10 +1,11 @@
-import UIComponent from "./UIComponent";
+import UIComponent from "./UIComponent.js";
 
 export class ButtonComponent extends UIComponent {
   constructor( id, props = {} ) {
     super( id, props.styles, props.class);
     this.label = props.label;
     this.styles = props.styles;
+    this.attributes = props.attributes;
     this.class = props.class || '';
 
     this.expectedListeners = () => ({
@@ -28,6 +29,7 @@ export class ButtonComponent extends UIComponent {
 
     this.applyStyles( buttonElement );
     this.applyClasses(buttonElement);
+    this.applyAttributes(buttonElement);
 
     if ( this.transitionIn ) {
       this.transitionIn( buttonElement );

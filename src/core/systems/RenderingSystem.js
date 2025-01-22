@@ -1,5 +1,5 @@
-import Engine from "../Engine";
-import System from "../System";
+import Engine from "../Engine.js";
+import System from "../System.js";
 
 export class RenderingSystem extends System {
 

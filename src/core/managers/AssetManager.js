@@ -1,5 +1,7 @@
 import { AmbientLight, AudioLoader, BufferGeometryLoader, DirectionalLight, HemisphereLight, MathUtils, Object3D, ObjectLoader, PointLight, SpotLight, TextureLoader } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+import { TGALoader } from "three/addons/loaders/TGALoader.js";
 
 class AssetManager {
 
@@ -11,9 +13,9 @@ class AssetManager {
     this.cache = new Map();
 
     this.loaders = {
-      texture: new TextureLoader(),
+      texture: [new TextureLoader(), new TGALoader()],
       object: new ObjectLoader(),
-      model: new GLTFLoader(),
+      model: [new GLTFLoader(), new OBJLoader()],
       audio: new AudioLoader(),
       geometry: new BufferGeometryLoader(),
     };
@@ -35,19 +37,27 @@ class AssetManager {
 
     if ( typeCache.has( key ) ) return;
 
-    const loader = this.getLoader( type );
+    const loader = this.getLoader( type, url );
 
     return new Promise( ( resolve, reject ) =>
       loader.load(
         url,
-        ( resolve( typeCache.set( key, data ).get( key ) ) )( data ),
-        this.logProgress( e, type, key )( e ),
-        reject )
+        ( data ) => {
+          typeCache.set( key, data );
+          resolve( data );
+        },
+        ( e ) => this.logProgress( e, type, key ),
+        ( error ) => {
+          console.log( error );
+          reject( error );
+        } )
     );
   }
 
   async parse( data ) {
+
     const typeCache = this.getTypeCache( "object" );
+
     if ( data.uuid && typeCache.has( data.uuid ) ) return typeCache.get( data.uuid );
     else if ( data.uuid === undefined ) data.uuid = MathUtils.generateUUID();
 
@@ -91,10 +101,27 @@ class AssetManager {
    * @param {string} type 
    * @returns {TextureLoader | ObjectLoader | GLTFLoader | AudioLoader}
    */
-  getLoader( type ) {
+  getLoader( type, url ) {
     const loader = this.loaders[type];
     if ( !loader ) {
       throw new Error( `Unsupported asset type: ${type}` );
+    }
+    if ( Array.isArray( loader ) ) {
+      switch ( url.split( "." ).pop() ) {
+        case "gltf":
+          return loader[0];
+        case "obj":
+          return loader[1];
+        default:
+          break;
+      }
+
+      switch ( url.split( "." ).pop() ) {
+        case "tga":
+          return loader[1];
+        default:
+          return loader[0];
+      }
     }
     return loader;
   }

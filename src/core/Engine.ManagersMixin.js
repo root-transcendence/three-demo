@@ -1,11 +1,11 @@
-import { AssetManager } from "./managers/AssetManager";
-import { ComponentManager } from "./managers/ComponentManager";
-import { EntityManager } from "./managers/EntityManager";
-import { EnvironmentManager } from "./managers/EnvironmentManager";
-import { InputManager } from "./managers/InputManager";
-import { MenuManager } from "./managers/MenuManager";
-import { ProcedureManager } from "./managers/ProcedureManager";
-import { WebSocketManager } from "./managers/WebSocketManager";
+import { AssetManager } from "./managers/AssetManager.js";
+import { ComponentManager } from "./managers/ComponentManager.js";
+import { EntityManager } from "./managers/EntityManager.js";
+import { EnvironmentManager } from "./managers/EnvironmentManager.js";
+import { InputManager } from "./managers/InputManager.js";
+import { MenuManager } from "./managers/MenuManager.js";
+import { ProcedureManager } from "./managers/ProcedureManager.js";
+import { WebSocketManager } from "./managers/WebSocketManager.js";
 
 export const ManagersMixin = {
 
@@ -33,7 +33,7 @@ export const ManagersMixin = {
     this.addManager( new InputManager() );
     this.addManager( new AssetManager() );
     this.addManager( new EnvironmentManager( this ) );
-    this.addManager( new WebSocketManager( "/asd" ) );
+    this.addManager( new WebSocketManager( this ) );
     this.addManager( new ComponentManager( "AssetComponent" ) );
     this.addManager( new ComponentManager( "PositionComponent" ) );
     this.addManager( new ComponentManager( "VelocityComponent" ) );

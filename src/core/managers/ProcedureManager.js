@@ -1,3 +1,6 @@
+const INTERVAL_MIN = 1000 / 120;
+const INTERVAL_MAX = 1000 / 0;
+
 /**
  * @class ProcedureManager
  * 
@@ -25,7 +28,7 @@ export class ProcedureManager {
    */
   addProcedure( procedure, startOnAdd = false ) {
 
-    const { requirements, start, update } = procedure;
+    const { requirements } = procedure;
 
     let collectedRequirements;
 
@@ -55,27 +58,7 @@ export class ProcedureManager {
     this.procedures.set( procedure.id, { procedure, collectedRequirements } );
 
     if ( startOnAdd ) {
-      try {
-        console.log( `Starting procedure: ${procedure.name}` );
-        start( collectedRequirements );
-      } catch ( error ) {
-        procedure.state = "error";
-        console.error( `Error starting procedure: ${procedure.name}` );
-        console.error( error );
-      }
-    }
-
-    if ( update ) {
-      this.engine.updateTasks.set( "Procedure_" + procedure.name, () => {
-        try {
-          console.log( `Updating procedure: ${procedure.name}` );
-          update( collectedRequirements );
-        } catch ( error ) {
-          procedure.state = "error";
-          console.error( `Error updating procedure: ${procedure.name}` );
-          console.error( error );
-        }
-      } );
+      this.startProcedure( procedure.id );
     }
   }
 
@@ -86,12 +69,29 @@ export class ProcedureManager {
     if ( entry ) {
 
       console.log( `Starting procedure: ${procedureId} with name ${entry.procedure.name}` );
-
       try {
+        entry.procedure.state = "running";
         entry.procedure.start( entry.collectedRequirements );
       } catch ( error ) {
         entry.procedure.state = "error";
         console.error( `Error starting procedure: ${procedureId} with name ${entry.procedure.name}` );
+        console.error( error );
+      }
+
+      if ( entry.procedure.update ) {
+        this.engine.updateTasks.set( "Procedure_" + entry.procedure.name, this.updateProcedure.bind( this, procedureId ) );
+      }
+    }
+  }
+
+  updateProcedure( procedureId ) {
+    const entry = this.procedures.get( procedureId );
+    if ( entry ) {
+      try {
+        entry.procedure.update( entry.collectedRequirements );
+      } catch ( error ) {
+        entry.procedure.state = "error";
+        console.error( `Error updating procedure: ${procedureId} with name ${entry.procedure.name}` );
         console.error( error );
       }
     }
@@ -112,11 +112,13 @@ export class ProcedureManager {
       }
 
       this.procedures.delete( entry );
+      this.engine.updateTasks.delete( "Procedure_" + entry.procedure.name );
     }
   }
 
   collectRequirements( requirements ) {
-    if ( !requirements ) return {};
+    if ( !requirements )
+      return {};
     return {
       managers: this.getRequiredItems( this.engine.managers, requirements.managers ),
       three: this.getRequiredItems( this.engine.three, requirements.three ),
@@ -130,7 +132,7 @@ export class ProcedureManager {
     return keys.reduce( ( acc, key ) => {
       if ( collection[key] ) {
         acc[key] = collection[key];
-        if (acc[key] instanceof Function ) {
+        if ( acc[key] instanceof Function ) {
           acc[key] = acc[key].bind( collection );
         }
       }
@@ -139,6 +141,26 @@ export class ProcedureManager {
   }
 }
 
+/**
+ * @global
+ * @typedef {{
+ *   managers: string[],
+ *   three: string[],
+ *   systems: string[],
+ *   engine: string[]
+ * }} ProcedureRequirements
+ * 
+ * @global
+ * @typedef {{
+ *  name: string,
+ *  requirements: ProcedureRequirements,
+ *  start: () => void,
+ *  update: () => void,
+ *  end: () => void,
+ *  timeout: number,
+ *  interval: number
+ * }} ProcedureConfig
+ */
 export class Procedure {
   #id = undefined;
   /**
@@ -151,15 +173,22 @@ export class Procedure {
   #update;
   #end;
   #timeout;
+  #interval;
+  #lastUpdate
+
   /**
-   * @param {string} name
-   * @param {{three: string[], managers: string[], systems: string[]}} requirements
-   * @param {(requirements: any) => void} start
-   * @param {(requirements: any) => void} update
-   * @param {(requirements: any) => void} end
-   * @param {number} timeout
+   * 
+   * @param {ProcedureConfig} param
    */
-  constructor( { name, requirements, start, update, end, timeout } ) {
+  constructor( {
+    name = `unnamed-${crypto.randomUUID()}`,
+    requirements,
+    start,
+    update,
+    end,
+    timeout,
+    interval = 30
+  } ) {
     this.#state = "idle";
     this.#name = name;
     this.#requirements = requirements;
@@ -167,6 +196,8 @@ export class Procedure {
     this.#update = update;
     this.#end = end;
     this.#timeout = timeout;
+    this.#interval = interval;
+    this.#lastUpdate = 0;
   }
 
   get state() {
@@ -182,7 +213,8 @@ export class Procedure {
   }
 
   set id( val ) {
-    if ( this.#id != undefined ) throw new Error( "Procedure id has already been set" );
+    if ( this.#id != undefined )
+      throw new Error( "Procedure id has already been set" );
     this.#id = val;
   }
 
@@ -191,7 +223,8 @@ export class Procedure {
    * @throws {Error} if process have already been loaded
    */
   set name( val ) {
-    if ( this.#state != "idle" ) throw new Error( "Procedure has already been loaded" );
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
     this.#name = val;
   }
 
@@ -200,11 +233,12 @@ export class Procedure {
   }
 
   /**
-   * @param {{three: string[], managers: string[], systems: string[]}} val
+   * @param {ProcedureRequirements} val
    * @throws {Error} if process have already been loaded
    */
   set requirements( val ) {
-    if ( this.#state != "idle" ) throw new Error( "Procedure has already been loaded" );
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
     this.#requirements = val;
   }
 
@@ -213,11 +247,12 @@ export class Procedure {
   }
 
   /**
-   * @param {(requirements: any) => void} val
+   * @param {(requirements: ProcedureRequirements) => void} val
    * @throws {Error} if process have already been loaded
    */
   set start( val ) {
-    if ( this.#state != "idle" ) throw new Error( "Procedure has already been loaded" );
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
     this.#start = val;
   }
 
@@ -226,28 +261,69 @@ export class Procedure {
   }
 
   /**
-   * @param {(requirements: any) => void} val
+   * @param {(requirements: ProcedureRequirements) => void} val
    * @throws {Error} if process have already been loaded
    */
   set update( val ) {
-    if ( this.#state != "idle" ) throw new Error( "Procedure has already been loaded" );
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
     this.#update = val;
   }
 
   get update() {
-    return this.#update;
+    return this._performUpdate.bind( this );
   }
 
   /**
-   * @param {(requirements: any) => void} val
+   * @param {(requirements: ProcedureRequirements) => void} val
    * @throws {Error} if process have already been loaded
    */
   set end( val ) {
-    if ( this.#state != "idle" ) throw new Error( "Procedure has already been loaded" );
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
     this.#end = val;
   }
 
   get end() {
     return this.#end;
+  }
+
+  get timeout() {
+    return this.#timeout;
+  }
+
+  /**
+   * @param {number} val
+   * @throws {Error} if process have already been loaded
+   */
+  set timeout( val ) {
+    if ( this.#state != "idle" )
+      throw new Error( "Procedure has already been loaded" );
+    this.#timeout = val;
+  }
+
+  get interval() {
+    return this.#interval;
+  }
+
+  set interval( val ) {
+    if ( val < INTERVAL_MIN || val > INTERVAL_MAX )
+      throw new Error( "Interval must be between ( 1000 / 0 ) and ( 1000 / 120 )" );
+    this.#interval = val;
+  }
+
+  /**
+   * 
+   * @param {ProcedureRequirements} collectedRequirements 
+   * @returns {void}
+   */
+  _performUpdate( collectedRequirements ) {
+    if ( this.#state != "running" )
+      return;
+    const now = performance.now();
+    if ( now - this.#lastUpdate >= this.#interval ) {
+      this.#update( collectedRequirements );
+      this.#lastUpdate = now;
+    }
   }
 }

@@ -1,19 +1,18 @@
-import { Events, EventSystem } from "../systems/EventSystem";
+import Engine from "../Engine.js";
+import { Events, EventSystem } from "../systems/EventSystem.js";
 
 export class WebSocketManager {
 
   /**
    * 
-   * @param {object} props 
-   * @param {string} props.url
-   * @param {EventSystem} props.eventSystem
+   * @param {Engine} engine
    * 
    */
-  constructor( props ) {
-    const { url, eventSystem } = props;
-    this.url = url;
-    this.eventSystem = eventSystem;
-    this.websocket = new WebSocket( url );
+  constructor( engine ) {
+    this.engine = engine;
+    this.url = engine.config.wssUrl;
+    console.log( "trying ws" );
+    this.websocket = new WebSocket( engine.config.wssUrl );
     this.websocket.onopen = () => console.log( 'Connected to server via WSS' );
     this.websocket.onmessage = this.onMessage;
     this.websocket.onerror = ( event ) => console.error( 'WebSocket error:', event );

@@ -1,7 +1,7 @@
-import Engine from "../Engine";
-import { InputManager } from "../managers/InputManager";
-import { WebSocketManager } from "../managers/WebSocketManager";
-import System from "../System";
+import Engine from "../Engine.js";
+import { InputManager } from "../managers/InputManager.js";
+import { WebSocketManager } from "../managers/WebSocketManager.js";
+import System from "../System.js";
 
 /**
  * 
@@ -25,7 +25,7 @@ class InputSystem extends System {
     this.update = () => {
       const input = this.inputManager.getInputs();
       if ( input ) {
-
+        this.websocketManager.send( input )
       }
     }
   }
