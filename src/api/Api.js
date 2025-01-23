@@ -322,14 +322,14 @@ class Api {
 
   async getGameStats(game_id) {
     return this.#api
-      .get("/api/dashboard/get_game_stats/?game_id=" + game_id + "/")
+      .get("/api/dashboard/get_game_stats/?game_id=" + game_id)
       .withHeaders(this.#getHeaders())
       .send();
   }
 
   async getUserProfileStats(username) {
     return this.#api
-      .get("/api/dashboard/get_user_profile_stats/?username=" + username + "/")
+      .get("/api/dashboard/get_user_profile_stats/?username=" + username)
       .withHeaders(this.#getHeaders())
       .send();
   }
