@@ -1,6 +1,6 @@
 import { createRequestHandler, getCookie } from "./ApiUtils.js";
 
-const BASE_URL = "";
+const BASE_URL = "https://localhost";
 
 let api;
 

@@ -23,7 +23,6 @@ export class Game {
    */
   constructor( element ) {
     this.engine = new Engine( { element, config: gameConfig } );
-    document.addEventListener( "DOMContentLoaded", this.start.bind( this ) );
   }
 
   start() {
@@ -39,15 +38,10 @@ export class Game {
 
     const proc = new Procedure( gameProcedure );
     this.procedureManager.addProcedure( proc );
-    // setTimeout( () => {
-    //   this.procedureManager.addProcedure( procedure, true );
-
-    // }, 2000 );
   }
 
   addMenu( menu ) {
     this.engine.getManager( MenuManager )?.menuManager.addMenu( menu );
   }
-
 
 }

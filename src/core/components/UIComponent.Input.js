@@ -2,7 +2,7 @@ import UIComponent from "./UIComponent.js";
 
 export class InputComponent extends UIComponent {
   constructor( id, props = {} ) {
-    super( id, props.styles, props.class );
+    super( id, props.styles, null, props.class );
     this.placeholder = props.placeholder || "";
     this.value = props.value || "";
     this.type = props.type || "text";

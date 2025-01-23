@@ -1,29 +1,39 @@
 export default class Router {
 
   constructor() {
+
     this._routes = {};
+
     window.addEventListener( "popstate", () =>
+
       this.handleRoute( window.location.pathname ),
+
     );
 
-    if ( !this._routes[window.location.pathname] ) {
-      this.navigate( "/" );
-    } else {
-      this.handleRoute( window.location.pathname );
-    }
+    this.navigate( "/" );
 
     document.body.addEventListener( "click", ( event ) => {
-      const target = event.target;
 
-      if ( target.tagName === "A" ) {
+      const target = event.target.closest( "a" );
+
+      if ( target ) {
+
         const link = target;
+
         if ( link.href && link.href.startsWith( window.location.origin ) ) {
+
           event.preventDefault();
+
           const path = link.getAttribute( "href" );
+
           if ( path ) {
+
             this.navigate( path );
+
           } else {
+
             console.warn( "Link has no href attribute." );
+
           }
         }
       }
@@ -61,5 +71,3 @@ export default class Router {
     }
   }
 }
-
-export const router = new Router();

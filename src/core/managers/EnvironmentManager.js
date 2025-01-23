@@ -73,7 +73,7 @@ export class EnvironmentManager {
     return this.scenes.get( name );
   }
 
-  setActiveScene( name ) {
+  async setActiveScene( name ) {
     if ( this.activeScene ) {
       this.cleanupScene( this.activeScene );
     }
@@ -81,7 +81,7 @@ export class EnvironmentManager {
     if ( !this.activeScene ) {
       throw new Error( `Scene "${name}" does not exist.` );
     }
-    this.setupScene( this.activeScene );
+    return this.setupScene( this.activeScene );
   }
 
   setupScene( scene ) {
@@ -93,5 +93,9 @@ export class EnvironmentManager {
 
   cleanupScene( scene ) {
     scene.children.forEach( ( child ) => scene.remove( child ) );
+  }
+
+  setSkybox( skybox ) {
+    this.engine.three.Scene.background = skybox;
   }
 }

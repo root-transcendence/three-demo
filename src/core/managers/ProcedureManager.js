@@ -1,5 +1,4 @@
-const INTERVAL_MIN = 1000 / 120;
-const INTERVAL_MAX = 1000 / 0;
+
 
 /**
  * @class ProcedureManager
@@ -69,17 +68,28 @@ export class ProcedureManager {
     if ( entry ) {
 
       console.log( `Starting procedure: ${procedureId} with name ${entry.procedure.name}` );
+
       try {
+
         entry.procedure.state = "running";
         entry.procedure.start( entry.collectedRequirements );
+
       } catch ( error ) {
+
         entry.procedure.state = "error";
         console.error( `Error starting procedure: ${procedureId} with name ${entry.procedure.name}` );
         console.error( error );
+
       }
 
-      if ( entry.procedure.update ) {
+      if ( entry.procedure.startOnly ) {
+
+        this.endProcedure( procedureId );
+
+      } else if ( entry.procedure.update ) {
+
         this.engine.updateTasks.set( "Procedure_" + entry.procedure.name, this.updateProcedure.bind( this, procedureId ) );
+
       }
     }
   }
@@ -104,6 +114,7 @@ export class ProcedureManager {
       console.log( `Ending procedure: ${procedureId} with name ${entry.procedure.name}` );
 
       try {
+        entry.procedure.state = "ended";
         entry.procedure.end( entry.collectedRequirements );
       } catch ( error ) {
         entry.procedure.state = "error";
@@ -152,13 +163,14 @@ export class ProcedureManager {
  * 
  * @global
  * @typedef {{
- *  name: string,
- *  requirements: ProcedureRequirements,
- *  start: () => void,
- *  update: () => void,
- *  end: () => void,
- *  timeout: number,
- *  interval: number
+ *  name: string | undefined,
+ *  startOnly: boolean | undefined,
+ *  requirements: ProcedureRequirements | undefined,
+ *  start: (ProcedureRequirements | undefined) => void,
+ *  update: (ProcedureRequirements | undefined) => void,
+ *  end: (ProcedureRequirements | undefined) => void,
+ *  timeout: number | undefined,
+ *  interval: number | undefined
  * }} ProcedureConfig
  */
 export class Procedure {
@@ -168,6 +180,7 @@ export class Procedure {
    */
   #state;
   #name;
+  #startOnly;
   #requirements;
   #start;
   #update;
@@ -182,6 +195,7 @@ export class Procedure {
    */
   constructor( {
     name = `unnamed-${crypto.randomUUID()}`,
+    startOnly,
     requirements,
     start,
     update,
@@ -191,6 +205,7 @@ export class Procedure {
   } ) {
     this.#state = "idle";
     this.#name = name;
+    this.#startOnly = startOnly;
     this.#requirements = requirements;
     this.#start = start;
     this.#update = update;
@@ -232,6 +247,15 @@ export class Procedure {
     return this.#name;
   }
 
+  get startOnly() {
+    return this.#startOnly;
+  }
+
+  set startOnly( val ) {
+
+    this.#startOnly = val;
+  }
+
   /**
    * @param {ProcedureRequirements} val
    * @throws {Error} if process have already been loaded
@@ -251,7 +275,7 @@ export class Procedure {
    * @throws {Error} if process have already been loaded
    */
   set start( val ) {
-    if ( this.#state != "idle" )
+    if ( this.#state != "idle" || this.#state != "ended" )
       throw new Error( "Procedure has already been loaded" );
     this.#start = val;
   }
@@ -271,6 +295,13 @@ export class Procedure {
   }
 
   get update() {
+    if ( !this.#update || this.#state != "running" ) {
+      return undefined;
+    }
+
+    if ( this.#interval < 5 ) {
+      return this.#update.bind( this );
+    }
     return this._performUpdate.bind( this );
   }
 
@@ -307,8 +338,6 @@ export class Procedure {
   }
 
   set interval( val ) {
-    if ( val < INTERVAL_MIN || val > INTERVAL_MAX )
-      throw new Error( "Interval must be between ( 1000 / 0 ) and ( 1000 / 120 )" );
     this.#interval = val;
   }
 

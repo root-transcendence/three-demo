@@ -1,6 +1,8 @@
 import { CSS3DObject } from "../../../lib/three/examples/jsm/renderers/CSS3DRenderer.js";
 import Component from "../Components.js";
-
+/**
+ * @property {HTMLElement} element
+ */
 class UIComponent extends Component {
   /**
    * 
@@ -8,15 +10,18 @@ class UIComponent extends Component {
    * @param {CSSRuleList} styles 
    * @param {CSS3DObject} object 
    * @param {string} _class 
+   * 
    */
-  constructor( id, styles = {}, object, _class ) {
+  constructor( id, styles = {}, object, _class = '', element = null ) {
     super();
     this.id = id;
     this.styles = styles;
     this._object = object;
-    this.class = _class || ''; // class boşsa, varsayılan olarak boş dize
+    this.class = _class;
     this.active = false;
-    this.element = null;
+    this.element = element;
+
+    this.dataHolder = {};
   }
 
   get object() {
@@ -38,7 +43,7 @@ class UIComponent extends Component {
 
   applyClasses( element ) {
     if ( this.class ) {
-      element.classList.add( this.class ); // classList ile sınıf ekleyin
+      element.classList.add( ...this.class.split( ' ' ) );
     }
   }
 

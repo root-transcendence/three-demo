@@ -11,6 +11,7 @@ export class FormComponent extends UIComponent {
       click: this.onClick,
       mouseenter: this.onMouseEnter,
       mouseleave: this.onMouseLeave,
+      submit: this.onSubmit,
     });
   }
 

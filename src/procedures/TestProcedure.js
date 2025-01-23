@@ -1,52 +1,39 @@
-import { createLoginForm } from "../UIComponents/LoginComponent.js";
-import { createRegisterForm } from "../UIComponents/RegisterComponent.js";
-
-export const testProcedure = {
-  name: "Test Procedure",
+/**
+ * @member {import("../core/managers/ProcedureManager.js").ProcedureConfig}
+ */
+export const registerProcedureConfig = {
+  name: "p_register",
   requirements: {
     managers: ["MenuManager"],
-    engine: ["setInteractionCanvas"]
   },
-  start: ( { managers, engine } ) => {
+  start: ( { managers } ) => {
     const { MenuManager } = managers;
-    const { setInteractionCanvas } = engine;
 
-    const menu = createLoginForm();
-
-    MenuManager.addMenu( menu );
-    MenuManager.switchMenu( menu.id );
-    setInteractionCanvas( "css3d" );
+    MenuManager.switchMenu( "registerMenu" );
   },
-  end: ( { managers, engine } ) => {
+  end: ( { managers } ) => {
     const { MenuManager } = managers;
-    const { setInteractionCanvas } = engine;
 
     MenuManager.setActiveMenu( null );
-    setInteractionCanvas( "webgl" );
   }
 }
 
-export const testProcedure2 = {
-  name: "Test Procedure",
+/**
+ * @member {import("../core/managers/ProcedureManager.js").ProcedureConfig}
+ */
+export const loginProcedureConfig = {
+  name: "p_login",
   requirements: {
     managers: ["MenuManager"],
-    engine: ["setInteractionCanvas"]
   },
-  start: ( { managers, engine } ) => {
+  start: ( { managers } ) => {
     const { MenuManager } = managers;
-    const { setInteractionCanvas } = engine;
 
-    const menu = createRegisterForm();
-
-    MenuManager.addMenu( menu );
-    MenuManager.switchMenu( menu.id );
-    setInteractionCanvas( "css3d" );
+    MenuManager.switchMenu( "loginMenu" );
   },
-  end: ( { managers, engine } ) => {
+  end: ( { managers } ) => {
     const { MenuManager } = managers;
-    const { setInteractionCanvas } = engine;
 
     MenuManager.setActiveMenu( null );
-    setInteractionCanvas( "webgl" );
   }
 }
