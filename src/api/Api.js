@@ -322,17 +322,15 @@ class Api {
 
   async getGameStats(game_id) {
     return this.#api
-      .get("/api/dashboard/get_game_stats/")
+      .get("/api/dashboard/get_game_stats/?game_id=" + game_id + "/")
       .withHeaders(this.#getHeaders())
-      .withBody({ game_id: game_id })
       .send();
   }
 
   async getUserProfileStats(username) {
     return this.#api
-      .post("/api/dashboard/get_user_profile_stats/")
+      .get("/api/dashboard/get_user_profile_stats/?username=" + username + "/")
       .withHeaders(this.#getHeaders())
-      .withBody({ username: username })
       .send();
   }
 
