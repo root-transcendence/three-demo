@@ -38,16 +38,21 @@ export function createRequestHandler( baseUrl, baseHeaders = {} ) {
     }
 
     async send() {
-      const response = await fetch( this.#url, {
-        method: this.#method,
-        headers: {
-          ...baseHeaders,
-          ...this.#headers
-        },
-        body: JSON.stringify( this.#body ),
-        credentials: 'include'
-      } );
-      return handleResponse( response );
+      try {
+
+        const response = await fetch( this.#url, {
+          method: this.#method,
+          headers: {
+            ...baseHeaders,
+            ...this.#headers
+          },
+          body: JSON.stringify( this.#body ),
+          credentials: 'include'
+        } );
+        return handleResponse( response );
+      } catch ( error ) {
+        return Promise.reject( error );
+      }
     }
 
   }

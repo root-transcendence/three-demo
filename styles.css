@@ -2,12 +2,6 @@
 
 body {
   margin: 0;
-  overflow: hidden;
-}
-
-canvas {
-  position: absolute;
-  z-index: 1;
 }
 
 ft-transcendence {

@@ -20,7 +20,7 @@ export class EnvironmentManager {
   }
 
   async loadScenes( scenes ) {
-    scenes.map( ( sceneConfig ) => new Promise( resolve => {
+    return scenes.map( ( sceneConfig ) => new Promise( resolve => {
       const scene = this.createSceneFromConfig( sceneConfig );
       this.addScene( scene );
       resolve();

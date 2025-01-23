@@ -2,6 +2,7 @@ import { ManagersMixin } from "./Engine.ManagersMixin.js";
 import { SystemsMixin } from "./Engine.SystemsMixin.js";
 import { OtherMixin, ThreeMixin } from "./Engine.ThreeMixin.js";
 import { EnvironmentManager } from "./managers/EnvironmentManager.js";
+import { EventSystem } from "./systems/EventSystem.js";
 
 /**
  * @class Engine
@@ -71,13 +72,14 @@ export default class Engine {
     this.setupSystems();
   }
 
-  loadConfig( config ) {
+  async loadConfig( config ) {
 
     if ( !config ) {
       throw Error( `Engine: The config is ${config}. You joking?` );
     }
     const envmgr = this.getManager( EnvironmentManager );
-    envmgr.loadScenes( config.scenes );
+    const loaded = Promise.all( envmgr.loadScenes( config.scenes ) );
+    EventSystem.emit( "scenes-loaded", loaded );
   }
 }
 
