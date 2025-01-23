@@ -59,6 +59,9 @@ export function createRequestHandler( baseUrl, baseHeaders = {} ) {
     post( endpoint ) {
       return new RequestBuilder( 'POST', endpoint );
     },
+    patch( endpoint ) {
+      return new RequestBuilder( 'PATCH', endpoint );
+    },
     put( endpoint ) {
       return new RequestBuilder( 'PUT', endpoint );
     },
