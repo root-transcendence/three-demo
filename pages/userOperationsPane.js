@@ -1,4 +1,5 @@
 import { useApi } from "../src/api/Api.js";
+import { useGameRequestSocket } from "../src/api/GameRequestSocket.js";
 
 /**
  * Creates a pane (card) with top-tab navigation for user operations:
@@ -11,6 +12,7 @@ import { useApi } from "../src/api/Api.js";
  */
 export function createUserOperationsPane() {
   const api = useApi();
+		const gameRequestSocket = useGameRequestSocket();
 
   // Main container for this pane
   const card = document.createElement( "div" );
@@ -27,6 +29,7 @@ export function createUserOperationsPane() {
     { id: "friendsTab", label: "Friends", active: true },
     { id: "requestsTab", label: "Requests" },
     { id: "searchTab", label: "Search" },
+    { id: "gameRequestTab", label: "Game Request List" },
   ];
 
   tabs.forEach( ( tab, idx ) => {
@@ -103,6 +106,17 @@ export function createUserOperationsPane() {
   `;
 
   populateRequests( requestsPane.querySelector( "#requestsList" ), api );
+
+  const gameRequestsPane = document.createElement( "div" );
+  gameRequestsPane.className = "tab-pane fade";
+  gameRequestsPane.id = "gameRequestTab";
+  gameRequestsPane.innerHTML = `
+    <h5>Pending Game Requests</h5>
+    <p class="text-muted">Accept or decline game requests here.</p>
+    <ul class="list-group" id="gameRequestsList"></ul>
+  `;
+
+  populateGameRequests( gameRequestsPane.querySelector( "#gameRequestsList" ), gameRequestSocket );
 
   // --------------- SEARCH TAB ---------------
   const searchPane = document.createElement( "div" );
@@ -208,6 +222,7 @@ export function createUserOperationsPane() {
   cardBody.appendChild( friendsPane );
   cardBody.appendChild( requestsPane );
   cardBody.appendChild( searchPane );
+  cardBody.appendChild( gameRequestsPane );
 
   // Return the assembled card
   return card;
@@ -353,4 +368,9 @@ async function populateRequests( requestsListElement, api ) {
   } catch ( error ) {
     console.error( "Error populating requests:", error );
   }
+}
+
+async function populateGameRequests( requestsListElement, socket ) {
+		const response = await socket.fechGameRequest()
+
 }
