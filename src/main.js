@@ -1,89 +1,70 @@
+import { gamePage } from "../pages/game.js";
+import { homePage } from "../pages/home.js";
+import { loginPage } from "../pages/login.js";
 import { profilePage } from "../pages/profile.js";
-import Router from "./Router.js";
-import { createLoginForm } from "./UIComponents/LoginComponent.js";
-import { createRegisterForm } from "./UIComponents/RegisterComponent.js";
 import { useApi } from "./api/Api.js";
 import { EventSystem } from "./core/systems/EventSystem.js";
-
+import { requireAuth, requireNonAuth } from "./routing/authUtils.js";
+import Router from "./routing/Router.js";
 
 export class App extends HTMLElement {
   #router;
-  // #engine;
 
   constructor() {
     super();
-    // this.#engine = new Engine( { element: this, config: gameConfig } );
-
-
-    // this.#game = new Game( this );
     this.#router = new Router();
-
-    this.start()
-    // .then( () => {
-    //   // this.#engine.setInteractionCanvas( "css3d" );
-    this.#router.navigate( window.location.pathname );
-
-    // } );
-
+    this.#initialize().then( () => {
+      this.#router.navigate( window.location.pathname );
+    } );
   }
 
-  async start() {
-    // this.#engine.setup();
-    // this.#engine.march();
+  async #initialize() {
+    this.#setupRoutes();
 
-    // this.procedureManager = this.#engine.getManager( ProcedureManager );
-    // this.menuManager = this.#engine.getManager( MenuManager );
+    this.#setupEvents();
+  }
 
-    // EventSystem.on( "scenes-loaded", () => {
-    //   this.procedureManager.startProcedure( 0 );
-    // } )
+  #setupRoutes() {
+    this.#router.addRoute( "/login", requireNonAuth( this.#router, async () => {
+      this.innerHTML = "";
+      this.appendChild( await loginPage() );
+    } ) );
 
-    const menus = this.#_createMenus();
-
-    Object.keys( menus ).forEach( ( key ) => {
-
-      // this.addMenu( menus[key] );
-
-      this.#router.addRoute( `/${key}`, () => {
-        this.innerHTML = "";
-        this.appendChild( menus[key] );
-      } );
-
+    this.#router.addRoute( "/game", async () => {
+      this.innerHTML = "";
+      this.appendChild( await gamePage() );
     } );
 
+    this.#router.addRoute( "/", requireAuth( this.#router, async () => {
+      this.innerHTML = "";
+      this.appendChild( await homePage() );
+    } ) );
 
-    // this.#engine.getManager( EnvironmentManager ).setActiveScene( "Match" )
-
-    // const proc = new Procedure( gameProcedure );
-    // const procedure = new Procedure( registerProcedureConfig );
-    // const procedure2 = new Procedure( loginProcedureConfig );
-
-    // this.procedureManager.addProcedure( proc );
-    // this.procedureManager.addProcedure( procedure );
-    // this.procedureManager.addProcedure( procedure2 );
+    this.#router.addRoute( "/profile", requireAuth( this.#router, async () => {
+      this.innerHTML = "";
+      this.appendChild( await profilePage() );
+    } ) );
   }
 
-  // addMenu( menu ) {
-  //   this.#engine.getManager( MenuManager )?.addMenu( menu );
-  // }
-
-  #_createMenus() {
-
+  #setupEvents() {
     EventSystem.on( "login-form-submit", async ( { username, password } ) => {
-      const data = await useApi().login( username, password )
-      console.log( "login response", data );
-    } )
+      try {
+        const response = await useApi().login( username, password );
+        this.#router.navigate( "/" );
+      } catch ( err ) {
+        console.error( "Login failed:", err );
+      }
+    } );
 
     EventSystem.on( "register-form-submit", async ( { username, email, password } ) => {
-      const data = await useApi().register( username, email, password )
-      console.log( "register response", data );
-    } )
+      try {
+        const response = await useApi().register( username, email, password );
 
-    return ( {
-      login: createLoginForm(),
-      register: createRegisterForm(),
-      profile: profilePage()
-    } )
+        this.#router.navigate( "/login" );
+      } catch ( err ) {
+        console.error( "Login failed:", err );
+      }
+    } );
   }
 }
 
