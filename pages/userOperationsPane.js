@@ -1,5 +1,6 @@
 import { useApi } from "../src/api/Api.js";
 import { useGameRequestSocket } from "../src/api/GameRequestSocket.js";
+import { EventSystem } from "../src/api/EventSystem.js" 
 
 /**
  * Creates a pane (card) with top-tab navigation for user operations:
@@ -10,11 +11,13 @@ import { useGameRequestSocket } from "../src/api/GameRequestSocket.js";
  *
  * Returns a DOM element (div.card) you can place anywhere in your layout.
  */
-export function createUserOperationsPane() {
+export async function createUserOperationsPane() {
   const api = useApi();
-		const gameRequestSocket = useGameRequestSocket();
+  const gameRequestSocket =  useGameRequestSocket();
 
   // Main container for this pane
+
+
   const card = document.createElement( "div" );
   card.className = "card shadow-sm";
 
@@ -76,7 +79,7 @@ export function createUserOperationsPane() {
     </form>
   `;
 
-  populateFriends( friendsPane.querySelector( "#friendsList" ), api );
+  populateFriends( friendsPane.querySelector( "#friendsList" ), api, gameRequestSocket);
 
   const addFriendForm = friendsPane.querySelector( "#addFriendForm" );
   addFriendForm.addEventListener( "submit", async ( e ) => {
@@ -116,8 +119,11 @@ export function createUserOperationsPane() {
     <ul class="list-group" id="gameRequestsList"></ul>
   `;
 
-  populateGameRequests( gameRequestsPane.querySelector( "#gameRequestsList" ), gameRequestSocket );
+		EventSystem.on("fetch_game_request", (data) => {
+			populateGameRequests( gameRequestsPane.querySelector( "#gameRequestsList" ), data, gameRequestSocket);
+	})
 
+	gameRequestSocket.fetchGameRequest();
   // --------------- SEARCH TAB ---------------
   const searchPane = document.createElement( "div" );
   searchPane.className = "tab-pane fade";
@@ -197,7 +203,7 @@ export function createUserOperationsPane() {
           console.error( "Error blocking user:", error );
           alert( "Error blocking user." );
         }
-        populateFriends( friendsPane.querySelector( "#friendsList" ), api );
+        populateFriends( friendsPane.querySelector( "#friendsList" ), api, gameRequestSocket);
       } );
 
       actionsWrapper.append( addBtn, blockBtn );
@@ -236,7 +242,7 @@ export function createUserOperationsPane() {
 /**
  * Fetch friends & blocked users, then render them in #friendsList with remove/block logic
  */
-async function populateFriends( friendsListElement, api ) {
+async function populateFriends( friendsListElement, api, gameRequestSocket ) {
   try {
     const resFriends = await api.getFriendsList(); // e.g. { friends: [ { username: ... }, ... ] }
     const currentFriends = resFriends?.friends ?? [];
@@ -271,6 +277,17 @@ async function populateFriends( friendsListElement, api ) {
         }
       } );
 
+      const gameRequestBtn = document.createElement( "button" );
+      gameRequestBtn.className = "btn btn-sm btn-outline-success";
+      gameRequestBtn.textContent = "Send Game Request";
+      gameRequestBtn.addEventListener( "click", async () => {
+        try {
+						await gameRequestSocket.sendGameRequest(friend.username)
+        } catch ( error ) {
+						console.error("Failed to send game request:", error);
+        }
+      } );
+
       // Block / Unblock
       const blockBtn = document.createElement( "button" );
       blockBtn.className = "btn btn-sm btn-outline-warning";
@@ -301,6 +318,7 @@ async function populateFriends( friendsListElement, api ) {
         } );
       }
 
+      actionsWrapper.appendChild( gameRequestBtn );
       actionsWrapper.appendChild( removeBtn );
       actionsWrapper.appendChild( blockBtn );
       li.appendChild( actionsWrapper );
@@ -324,7 +342,7 @@ async function populateRequests( requestsListElement, api ) {
 
     requestsListElement.innerHTML = "";
 
-    received_requests.forEach( ( req ) => {
+    received_requests.forEach( ( req ) => { 
       const li = document.createElement( "li" );
       li.className = "list-group-item d-flex justify-content-between align-items-center";
       li.textContent = req.username;
@@ -370,7 +388,35 @@ async function populateRequests( requestsListElement, api ) {
   }
 }
 
-async function populateGameRequests( requestsListElement, socket ) {
-		const response = await socket.fechGameRequest()
+function populateGameRequests( requestsListElement, data, socket) {
 
+		requestsListElement.innerHTML = ``;
+
+		data.requests.forEach((request) => { 
+
+      const li = document.createElement( "li" );
+      li.className = "list-group-item d-flex justify-content-between align-items-center";
+      li.textContent = request.sender;
+
+      const actions = document.createElement( "span" );
+      actions.className = "d-flex gap-2";
+
+      // Accept
+      const acceptBtn = document.createElement( "button" );
+      acceptBtn.className = "btn btn-sm btn-success";
+      acceptBtn.textContent = "Accept";
+      acceptBtn.addEventListener( "click", async () => {
+					await socket.acceptGameRequest(request.sender)
+      });
+      const declineBtn = document.createElement( "button" );
+      declineBtn.className = "btn btn-sm btn-outline-danger";
+      declineBtn.textContent = "Decline";
+      declineBtn.addEventListener( "click", async () => {
+					await socket.declineGameRequest(request.sender)
+      });
+      actions.appendChild( acceptBtn );
+      actions.appendChild( declineBtn );
+      li.appendChild( actions );
+      requestsListElement.appendChild( li );
+		});
 }

@@ -8,7 +8,7 @@ export async function homePage() {
   title.textContent = "Home Page";
   container.appendChild(title);
 
-  const userPane = createUserOperationsPane();
+  const userPane = await createUserOperationsPane();
   container.appendChild(userPane);
 
   const otherContent = document.createElement("div");
