@@ -1,15 +1,17 @@
-import { CSS3DObject } from "../../lib/three/examples/jsm/renderers/CSS3DRenderer.js";
+import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
 import { ButtonComponent, DivComponent, FormComponent, InputComponent, LabelComponent, TextComponent } from '../core/components/Type.Component.js';
 import { withEventHandlers } from '../core/components/UIComponent.Util.js';
+import { EventSystem } from "../core/systems/EventSystem.js";
 
 function registerFormComponent() {
+
   const registerForm = new FormComponent( "registerForm" );
 
   const header = new TextComponent( "registerHeader", { text: "Register", class: "loginRegisterHeader" } );
 
   // Username input group
   const usernameGroup = new DivComponent( "usernameGroup", { class: "input-group" } );
-  const usernameInput = new InputComponent( "registerUsername", { type: "text", required: true, placeholder: " " } );
+  const usernameInput = new InputComponent( "registerUsername", { type: "text", class: "input-field", required: true, placeholder: " " } );
   const usernameLabel = new LabelComponent( "registerUsernameLabel", { text: "Username", for: "registerUsername" } );
   usernameGroup.elements = [
     usernameInput,
@@ -18,7 +20,7 @@ function registerFormComponent() {
 
   // Email input group
   const emailGroup = new DivComponent( "emailGroup", { class: "input-group" } );
-  const emailInput = new InputComponent( "registerEmail", { type: "email", required: true, placeholder: " " } );
+  const emailInput = new InputComponent( "registerEmail", { type: "email", class: "input-field", required: true, placeholder: " " } );
   const emailLabel = new LabelComponent( "registerEmailLabel", { text: "Email", for: "registerEmail" } );
   emailGroup.elements = [
     emailInput,
@@ -27,7 +29,7 @@ function registerFormComponent() {
 
   // Password input group
   const passwordGroup = new DivComponent( "passwordGroup", { class: "input-group" } );
-  const passwordInput = new InputComponent( "registerPassword", { type: "password", required: true, placeholder: " " } );
+  const passwordInput = new InputComponent( "registerPassword", { type: "password", class: "input-field", required: true, placeholder: " " } );
   const passwordLabel = new LabelComponent( "label", { text: "Password", for: "registerPassword" } );
   passwordGroup.elements = [
     passwordInput,
@@ -35,11 +37,16 @@ function registerFormComponent() {
   ]
 
   // Submit button
-  const submitButton = new ButtonComponent( "submitBtn", { attributes: { type: "button" }, class: "submit-btn", label: "Register" } );
+  const submitButton = new ButtonComponent( "submitBtn", { attributes: { type: "submit" }, class: "submit-btn input-field", label: "Register" } );
 
-  withEventHandlers( submitButton, {
-    onClick: () => {
-      useApi().register( emailInput.value, "email@gmail.com", passwordInput.value )
+  withEventHandlers( registerForm, {
+    onSubmit: ( event ) => {
+      event.preventDefault();
+      EventSystem.emit( "register-form-submit", {
+        username: usernameInput.value,
+        email: emailInput.value,
+        password: passwordInput.value
+      } );
     }
   } );
 
@@ -60,13 +67,6 @@ export function createRegisterForm() {
 
   const logo = new TextComponent( "42", { text: "42", class: "logo" } );
 
-  // Swicht form
-  const modeSwitch = new DivComponent( "modeSwitch", { class: "mode-switch" } );
-  const registerButton = new ButtonComponent( "registerBtn", { label: "Register" } );
-  modeSwitch.elements = [
-    registerButton
-  ]
-
   // hexagon
   const registerForm = registerFormComponent();
   const octagon = new DivComponent( "octagon", { class: "octagon" } );
@@ -82,19 +82,9 @@ export function createRegisterForm() {
 
   menuContainer.elements = [
     logo,
-    modeSwitch,
     octagon,
     new DivComponent( "authStatus", { class: "auth-status" } )
   ]
-
-  withEventHandlers( registerButton, {
-    onClick: () => {
-      octagonInner.elements = [
-        registerForm
-      ]
-      octagonInner.render();
-    }
-  } );
 
   menuContainer.transitionIn = () => {
     menuContainer._object.position.set( 0, 0, -500 );

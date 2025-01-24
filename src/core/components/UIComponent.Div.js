@@ -1,5 +1,13 @@
+import { traverse } from "../util/HtmlUtil.js";
 import UIComponent from "./UIComponent.js";
 
+/**
+ * @class DivComponent
+ * 
+ * @extends UIComponent
+ * 
+ * @typedef
+ */
 export class DivComponent extends UIComponent {
   constructor( id, props = {} ) {
     super( id, props.styles, props.object, props.class );
@@ -15,7 +23,7 @@ export class DivComponent extends UIComponent {
   }
 
   /**
-   * @param {UIComponent[]} elements
+   * @param {UIComponent[] | HTMLElement[]} elements
    */
   set elements( elements ) {
     this._elements = elements;
@@ -28,7 +36,7 @@ export class DivComponent extends UIComponent {
 
   render() {
     if ( this._rendered ) {
-      return this.element;
+      return this.element.chil;
     }
 
     this.element = this.createMenuElement();
@@ -58,7 +66,22 @@ export class DivComponent extends UIComponent {
     return menuElement;
   }
 
+  clearInputs() {
+    traverse( this.element,
+      /**
+       * 
+       * @param {HTMLElement} element 
+       */
+      ( element ) => {
+        if ( element instanceof HTMLInputElement ) {
+          element.value = "";
+        }
+      } );
+  }
+
   createMenuElement() {
+    if ( this.element )
+      return this.element;
     const menuElement = document.createElement( "div" );
     menuElement.id = this.id;
     return menuElement;

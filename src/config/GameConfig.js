@@ -69,6 +69,35 @@ export const gameConfig = {
     {
       name: "Test Scene",
       lights: [
+        {
+          "type": "AmbientLight",
+          "color": "white",
+          "intensity": .1
+        },
+        {
+          type: "PointLight",
+          color: "yellow",
+          intensity: 1,
+          position: [0, -5, 0],
+        },
+        {
+          type: "PointLight",
+          color: "yellow",
+          intensity: 1,
+          position: [0, 7, -5],
+        },
+        {
+          type: "PointLight",
+          color: "red",
+          intensity: 1,
+          position: [4, 7, -10],
+        },
+        {
+          type: "PointLight",
+          color: "blue",
+          intensity: 1,
+          position: [-4, -5, 10],
+        }
       ],
       assets: [],
       children: [

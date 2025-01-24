@@ -87,7 +87,7 @@ export const ThreeMixin = {
 
     cameraPivot.add( camera );
 
-    camera.position.set( 0, 2, 4 );
+    camera.position.set( 0, 3, 4 );
     camera.lookAt( 0, 0, 0 );
 
 

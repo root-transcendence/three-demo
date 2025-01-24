@@ -3,11 +3,13 @@ import { MeshPhysicalMaterial } from "three";
 let start = performance.now();
 
 /**
- * @type {import("../core/managers/ProcedureManager.js").ProcedureConfig}
+ * 
+ * @member {import("../core/managers/ProcedureManager.js").ProcedureConfig}
+ * 
  */
 export const gameProcedure = {
   name: "Match",
-  interval: 1000 / 120,
+  interval: 1000 / 1000,
   requirements: {
     engine: [
       "getShip",
@@ -38,8 +40,6 @@ export const gameProcedure = {
 
     const {
       CustomFlyControls,
-      CameraPivot,
-      Camera,
       Scene
     } = three;
 
@@ -68,11 +68,44 @@ export const gameProcedure = {
       metalness: 0.3,
     } );
 
+    // const textures = generateSkyTextures( {
+    //   resolution: 512,
+    //   seed: 'best seed ever',
+    //   nebulae: true,
+    //   pointStars: true,
+    //   sun: true,
+    //   stars: true
+    // } );
+
+    // downloadfromcanvas( textures.front );
+
+    // const cubebox = new CubeTexture( textures );
+
+
+    // window.cubebox = cubebox;
+
+    // window.textures = textures;
+
+    // for ( let i = 0; i < 50; i++ ) {
+
+    //   const cube = new Mesh( new BoxGeometry( 5, 5, 5 ), physicalMaterial );
+
+    //   cube.position.set( Math.random() * 100 - 50, Math.random() * 100 - 50, Math.random() * 100 - 50 );
+
+    //   Scene.add( cube );
+
+    // }
+
+    // EnvironmentManager.setSkybox( cubebox );
+
+    shipModel.scale.multiplyScalar( 0.1 );
+
     shipModel.traverse( ( child ) => {
       if ( child.isMesh ) {
         child.material = physicalMaterial;
       }
     } );
+
 
     Scene.add( shipModel );
     setShip( shipModel );
@@ -83,10 +116,19 @@ export const gameProcedure = {
     const { CameraPivot } = three;
     const { getShip } = engine;
 
-    const interpFactor = 0.1;
+    const interpFactor = 0.5;
     CameraPivot.position.lerp( getShip()?.position, interpFactor );
     const desiredQuat = getShip().quaternion.clone();
     CameraPivot.quaternion.slerp( desiredQuat, 1 );
   },
   end: ( { managers, three } ) => { },
 }
+
+function downloadfromcanvas( canvas ) {
+  var link = document.createElement( 'a' );
+  link.download = 'skybox.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+window.downloadfromcanvas = downloadfromcanvas;

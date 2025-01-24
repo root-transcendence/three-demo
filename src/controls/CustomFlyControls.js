@@ -16,13 +16,13 @@ export class CustomFlyControls extends FlyControls {
     this.autoForward = false;
 
     this._forwardVelocity = 0;
-    this._forwardAcceleration = 2.0;
-    this._forwardDeceleration = 0.6;
-    this._maxForwardSpeed = 10.0;
+    this._forwardAcceleration = 10.0;
+    this._forwardDeceleration = 3;
+    this._maxForwardSpeed = 50.0;
 
-    this._backwardAcceleration = 1.0;
-    this._backwardDeceleration = 0.8;
-    this._maxBackwardSpeed = 5.0;
+    this._backwardAcceleration = 8.0;
+    this._backwardDeceleration = 3;
+    this._maxBackwardSpeed = 30.0;
 
     this._rightVelocity = 0;
     this._rightAcceleration = 1.1;
@@ -39,7 +39,7 @@ export class CustomFlyControls extends FlyControls {
 
     this._yawAcceleration = 0.6;
     this._yawDeceleration = 0.4;
-    this._maxYawSpeed = 2.0;
+    this._maxYawSpeed = 1.0;
 
     this._rollAcceleration = 0.4;
     this._rollDeceleration = 0.4;
