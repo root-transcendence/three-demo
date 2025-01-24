@@ -17,10 +17,12 @@ export  class GameRequestsocket {
 
 						this.socket.onmessage = async function (e) {
 								const data = JSON.parse(e.data);
-								if (data.type === "game_request") {
 
-								} else if (data.type === "accept_request") {
+								if (data.type === "accept_request") {
+										console.log("data")
 								} else if (data.type === "fetch_request") {
+										EventSystem.emit("fetch_game_request", data.message)
+								} else if (data.type === "send_request") {
 										console.log(data)
 										EventSystem.emit("fetch_game_request", data)
 								}
@@ -30,9 +32,9 @@ export  class GameRequestsocket {
 								console.log("heyyya kapandim")
 						};
 						this.socket.onopen = () => {
+								resolve();
 								console.log("heyyya acildim")
 						};
-						resolve();
 				});
 
 		}
@@ -46,8 +48,6 @@ export  class GameRequestsocket {
 										receiver: username,
 								})
 						);
-						loadPage('frontend_static/game.html')
-						initSocket(uid);
 				} catch (error) {
 						console.error("Failed to send game request:", error);
 				}
@@ -64,8 +64,6 @@ export  class GameRequestsocket {
 										uid: uid,
 								})
 						);
-						loadPage('frontend_static/game.html')
-						initSocket(uid);
 				} catch (error) {
 						console.error("Failed to send game request:", error);
 				}
@@ -86,7 +84,6 @@ export  class GameRequestsocket {
 		}
 
 		async fetchGameRequest() {
-				console.log("fecydgskdafjgf")
 				try {
 						await this.isReady; // Bağlantı kurulmasını bekle
 						this.socket.send(

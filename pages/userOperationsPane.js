@@ -120,7 +120,7 @@ export async function createUserOperationsPane() {
   `;
 
 		EventSystem.on("fetch_game_request", (data) => {
-			populateGameRequests( gameRequestsPane.querySelector( "#gameRequestsList" ), data);
+			populateGameRequests( gameRequestsPane.querySelector( "#gameRequestsList" ), data, gameRequestSocket);
 	})
 
 	gameRequestSocket.fetchGameRequest();
@@ -342,7 +342,7 @@ async function populateRequests( requestsListElement, api ) {
 
     requestsListElement.innerHTML = "";
 
-    received_requests.forEach( ( req ) => {
+    received_requests.forEach( ( req ) => { 
       const li = document.createElement( "li" );
       li.className = "list-group-item d-flex justify-content-between align-items-center";
       li.textContent = req.username;
@@ -388,6 +388,35 @@ async function populateRequests( requestsListElement, api ) {
   }
 }
 
-function populateGameRequests( requestsListElement, data) {
-		console.log(data);
+function populateGameRequests( requestsListElement, data, socket) {
+
+		requestsListElement.innerHTML = ``;
+
+		data.requests.forEach((request) => { 
+
+      const li = document.createElement( "li" );
+      li.className = "list-group-item d-flex justify-content-between align-items-center";
+      li.textContent = request.sender;
+
+      const actions = document.createElement( "span" );
+      actions.className = "d-flex gap-2";
+
+      // Accept
+      const acceptBtn = document.createElement( "button" );
+      acceptBtn.className = "btn btn-sm btn-success";
+      acceptBtn.textContent = "Accept";
+      acceptBtn.addEventListener( "click", async () => {
+					await socket.acceptGameRequest(request.sender)
+      });
+      const declineBtn = document.createElement( "button" );
+      declineBtn.className = "btn btn-sm btn-outline-danger";
+      declineBtn.textContent = "Decline";
+      declineBtn.addEventListener( "click", async () => {
+					await socket.declineGameRequest(request.sender)
+      });
+      actions.appendChild( acceptBtn );
+      actions.appendChild( declineBtn );
+      li.appendChild( actions );
+      requestsListElement.appendChild( li );
+		});
 }
