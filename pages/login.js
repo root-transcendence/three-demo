@@ -1,4 +1,4 @@
-import { EventSystem } from "../src/core/systems/EventSystem.js";
+import { EventSystem } from "../src/api/EventSystem.js";
 
 export async function loginPage() {
   // Parent container

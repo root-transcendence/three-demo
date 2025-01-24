@@ -6,7 +6,7 @@ import { homePage } from "../pages/home.js";
 import { loginPage } from "../pages/login.js";
 import { profilePage } from "../pages/profile.js";
 import { useApi } from "./api/Api.js";
-import { EventSystem } from "./core/systems/EventSystem.js";
+import { EventSystem } from "./api/EventSystem.js";
 import { requireAuth, requireNonAuth } from "./routing/authUtils.js";
 import router from "./routing/Router.js";
 
