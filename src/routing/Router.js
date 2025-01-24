@@ -1,4 +1,4 @@
-export default class Router {
+class Router {
   constructor() {
     this._routes = {};
 
@@ -79,3 +79,7 @@ export default class Router {
     }
   }
 }
+
+const router = new Router();
+
+export default router;

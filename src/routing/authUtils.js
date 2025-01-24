@@ -6,7 +6,6 @@ export function requireAuth( router, routeHandler ) {
 
     const token = localStorage.getItem( "access" );
     if ( !token ) {
-      alert( "You must be logged in to access this page." );
       router.navigate( "/login" );
       return;
     }

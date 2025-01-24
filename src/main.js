@@ -1,18 +1,19 @@
-import { gamePage } from "../pages/game.js";
+import { gamePage } from "../pages/game/game.js";
+import { gamePageOffline } from "../pages/game/gameOffline.js";
 import { homePage } from "../pages/home.js";
 import { loginPage } from "../pages/login.js";
 import { profilePage } from "../pages/profile.js";
 import { useApi } from "./api/Api.js";
 import { EventSystem } from "./core/systems/EventSystem.js";
 import { requireAuth, requireNonAuth } from "./routing/authUtils.js";
-import Router from "./routing/Router.js";
+import router from "./routing/Router.js";
 
 export class App extends HTMLElement {
   #router;
 
   constructor() {
     super();
-    this.#router = new Router();
+    this.#router = router;
     this.#initialize().then( () => {
       this.#router.navigate( window.location.pathname );
     } );
@@ -25,6 +26,12 @@ export class App extends HTMLElement {
   }
 
   #setupRoutes() {
+
+    this.#router.addRoute( "/", requireAuth( this.#router, async () => {
+      this.innerHTML = "";
+      this.appendChild( await homePage() );
+    } ) );
+
     this.#router.addRoute( "/login", requireNonAuth( this.#router, async () => {
       this.innerHTML = "";
       this.appendChild( await loginPage() );
@@ -35,15 +42,16 @@ export class App extends HTMLElement {
       this.appendChild( await gamePage() );
     } );
 
-    this.#router.addRoute( "/", requireAuth( this.#router, async () => {
+    this.#router.addRoute( "/game-offline", () => {
       this.innerHTML = "";
-      this.appendChild( await homePage() );
-    } ) );
+      this.appendChild( gamePageOffline( true ) );
+    } );
 
     this.#router.addRoute( "/profile", requireAuth( this.#router, async () => {
       this.innerHTML = "";
       this.appendChild( await profilePage() );
     } ) );
+
   }
 
   #setupEvents() {
