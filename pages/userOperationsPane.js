@@ -85,9 +85,10 @@ export function createUserOperationsPane() {
       await api.sendFriendRequest( friendName );
       alert( `Friend request sent to: ${friendName}` );
       input.value = "";
+      populateRequests( friendsPane.querySelector( "#requestsList" ), api );
     } catch ( error ) {
       console.error( "Failed to send friend request:", error );
-      alert( "Error sending friend request." );
+      alert( error );
     }
   } );
 
@@ -167,6 +168,7 @@ export function createUserOperationsPane() {
           console.error( "Error sending friend request:", error );
           alert( "Error sending friend request." );
         }
+        populateRequests( friendsPane.querySelector( "#requestsList" ), api );
       } );
 
       const blockBtn = document.createElement( "button" );
@@ -181,6 +183,7 @@ export function createUserOperationsPane() {
           console.error( "Error blocking user:", error );
           alert( "Error blocking user." );
         }
+        populateFriends( friendsPane.querySelector( "#friendsList" ), api );
       } );
 
       actionsWrapper.append( addBtn, blockBtn );
@@ -301,11 +304,12 @@ async function populateRequests( requestsListElement, api ) {
   try {
     const response = await api.getAllRequestsList();
     // Suppose it returns { pending: [{ username: ... }, ...] }
-    const pending = response?.pending ?? [];
+    const all = response['all-requests'];
+    const received_requests = all?.received_requests ?? [];
 
     requestsListElement.innerHTML = "";
 
-    pending.forEach( ( req ) => {
+    received_requests.forEach( ( req ) => {
       const li = document.createElement( "li" );
       li.className = "list-group-item d-flex justify-content-between align-items-center";
       li.textContent = req.username;

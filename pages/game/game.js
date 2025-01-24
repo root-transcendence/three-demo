@@ -16,7 +16,6 @@ export async function gamePage() {
 
   offlineGameButton.textContent = "Play Offline";
   container.appendChild( offlineGameButton );
-  
 
   return container;
 }

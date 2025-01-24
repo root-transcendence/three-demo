@@ -1,8 +1,3 @@
-/*
- * loginPage.js
- * Combined Login + Register in a tab-like UI.
- */
-
 import { EventSystem } from "../src/core/systems/EventSystem.js";
 
 export async function loginPage() {
@@ -26,20 +21,18 @@ export async function loginPage() {
   subtitle.className = "mb-4 text-center text-muted";
   subtitle.textContent = "Please choose an option below.";
 
-  // -- Nav tabs for Login / Register
+  // --- Navigation Tabs ---
   const navWrapper = document.createElement( "ul" );
   navWrapper.className = "nav nav-tabs mb-3 justify-content-center";
 
-  // Login tab
   const loginTabItem = document.createElement( "li" );
   loginTabItem.className = "nav-item";
   const loginTabLink = document.createElement( "a" );
-  loginTabLink.className = "nav-link active"; // Login is default
-  loginTabLink.href = "#"; // not strictly necessary in an SPA
+  loginTabLink.className = "nav-link active";
+  loginTabLink.href = "#";
   loginTabLink.textContent = "Login";
   loginTabItem.appendChild( loginTabLink );
 
-  // Register tab
   const registerTabItem = document.createElement( "li" );
   registerTabItem.className = "nav-item";
   const registerTabLink = document.createElement( "a" );
@@ -48,19 +41,25 @@ export async function loginPage() {
   registerTabLink.textContent = "Register";
   registerTabItem.appendChild( registerTabLink );
 
+  const remoteAuthTabItem = document.createElement( "li" );
+  remoteAuthTabItem.className = "nav-item";
+  const remoteAuthTabLink = document.createElement( "a" );
+  remoteAuthTabLink.className = "nav-link";
+  remoteAuthTabLink.href = "#";
+  remoteAuthTabLink.textContent = "Remote Auth";
+  remoteAuthTabItem.appendChild( remoteAuthTabLink );
+
   navWrapper.appendChild( loginTabItem );
   navWrapper.appendChild( registerTabItem );
+  navWrapper.appendChild( remoteAuthTabItem );
 
-  // -- Alert Box (shared, or you can separate if you prefer unique messages)
+  // --- Alert Box for Errors / Warnings ---
   const alertBox = document.createElement( "div" );
   alertBox.className = "alert alert-danger d-none";
   alertBox.setAttribute( "role", "alert" );
-  // Start empty. We fill this text as needed:
   alertBox.textContent = "";
 
-  // ********************************************************
-  //   LOGIN FORM
-  // ********************************************************
+  // --- Login Form ---
   const loginForm = document.createElement( "form" );
   loginForm.className = "needs-validation";
 
@@ -97,16 +96,12 @@ export async function loginPage() {
   loginBtn.className = "btn btn-primary w-100 mt-3";
   loginBtn.textContent = "Login";
 
-  // Append login inputs
   loginForm.appendChild( usernameGroupLogin );
   loginForm.appendChild( passwordGroupLogin );
   loginForm.appendChild( loginBtn );
 
-  // Handle login submit
   loginForm.addEventListener( "submit", ( event ) => {
     event.preventDefault();
-
-    // Clear any previous alert
     alertBox.classList.add( "d-none" );
 
     const { username, password } = loginForm.elements;
@@ -117,29 +112,21 @@ export async function loginPage() {
     }
 
     try {
-      // If you add real API calls here, wrap them in try/catch:
-      // await someLoginApiCall(username.value.trim(), password.value);
-
-      // Emit an event for login
       EventSystem.emit( "login-form-submit", {
         username: username.value.trim(),
         password: password.value,
       } );
     } catch ( error ) {
-      // Catch any unexpected error and display in alertBox
       alertBox.classList.remove( "d-none" );
       alertBox.textContent = `Login failed. ${error.message}`;
       console.error( "Login error:", error );
     }
   } );
 
-  // ********************************************************
-  //   REGISTER FORM
-  // ********************************************************
+  // --- Register Form ---
   const registerForm = document.createElement( "form" );
   registerForm.className = "needs-validation d-none";
 
-  // Username
   const usernameGroupReg = document.createElement( "div" );
   usernameGroupReg.className = "mb-3";
   usernameGroupReg.innerHTML = `
@@ -154,7 +141,6 @@ export async function loginPage() {
     />
   `;
 
-  // Email
   const emailGroupReg = document.createElement( "div" );
   emailGroupReg.className = "mb-3";
   emailGroupReg.innerHTML = `
@@ -169,7 +155,6 @@ export async function loginPage() {
     />
   `;
 
-  // Password
   const passwordGroupReg = document.createElement( "div" );
   passwordGroupReg.className = "mb-3 position-relative";
   passwordGroupReg.innerHTML = `
@@ -189,31 +174,22 @@ export async function loginPage() {
   registerBtn.className = "btn btn-success w-100 mt-3";
   registerBtn.textContent = "Register";
 
-  // Append register inputs
   registerForm.appendChild( usernameGroupReg );
   registerForm.appendChild( emailGroupReg );
   registerForm.appendChild( passwordGroupReg );
   registerForm.appendChild( registerBtn );
 
-  // Handle register submit
   registerForm.addEventListener( "submit", ( event ) => {
     event.preventDefault();
-
-    // Clear alert
     alertBox.classList.add( "d-none" );
 
     const { username, email, password } = registerForm.elements;
-    if (
-      !username.value.trim() ||
-      !email.value.trim() ||
-      !password.value.trim()
-    ) {
+    if ( !username.value.trim() || !email.value.trim() || !password.value.trim() ) {
       alertBox.classList.remove( "d-none" );
       alertBox.textContent = "All fields (username, email, password) are required.";
       return;
     }
 
-    // Emit an event for register
     EventSystem.emit( "register-form-submit", {
       username: username.value.trim(),
       email: email.value.trim(),
@@ -221,15 +197,45 @@ export async function loginPage() {
     } );
   } );
 
+  // --- Ecole 42 Remote Auth Section ---
+  // This section is revealed when the "Remote Auth" tab is clicked.
+  const remoteAuthSection = document.createElement( "div" );
+  remoteAuthSection.className = "d-none";
+
+  const remoteTitle = document.createElement( "h5" );
+  remoteTitle.textContent = "Sign in with a Remote Provider";
+  remoteTitle.className = "mb-3";
+  remoteAuthSection.appendChild( remoteTitle );
+
+  // Example: "Login with 42" button
+  const ecole42Button = document.createElement( "button" );
+  ecole42Button.type = "button";
+  ecole42Button.className = "btn btn-outline-secondary w-100 mb-2";
+  ecole42Button.textContent = "Login with 42";
+
+  // When clicked, either do a redirect or emit an event for your main app to handle
+  ecole42Button.addEventListener( "click", () => {
+    // Option A: Emit an event your main code can handle:
+
+    window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-0d930db14b6e4ce5c5444d9e4a6ec2a7cbfebd777c72611065425e8de4f96f3d&redirect_uri=${window.location.origin}/&response_type=code`;
+  } );
+
+  remoteAuthSection.appendChild( ecole42Button );
+
+  // Add more remote providers if needed (GitHub, Google, etc.)
+
   // ********************************************************
-  //   TOGGLING BETWEEN LOGIN & REGISTER
+  //   TABS
   // ********************************************************
   loginTabLink.addEventListener( "click", ( e ) => {
     e.preventDefault();
     e.stopPropagation();
     registerTabLink.classList.remove( "active" );
+    remoteAuthTabLink.classList.remove( "active" );
     loginTabLink.classList.add( "active" );
+
     registerForm.classList.add( "d-none" );
+    remoteAuthSection.classList.add( "d-none" );
     loginForm.classList.remove( "d-none" );
     alertBox.classList.add( "d-none" );
   } );
@@ -238,10 +244,29 @@ export async function loginPage() {
     e.preventDefault();
     e.stopPropagation();
     loginTabLink.classList.remove( "active" );
+    remoteAuthTabLink.classList.remove( "active" );
     registerTabLink.classList.add( "active" );
+
     loginForm.classList.add( "d-none" );
+    remoteAuthSection.classList.add( "d-none" );
     registerForm.classList.remove( "d-none" );
     alertBox.classList.add( "d-none" );
+  } );
+
+  remoteAuthTabLink.addEventListener( "click", ( e ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    loginTabLink.classList.remove( "active" );
+    registerTabLink.classList.remove( "active" );
+    remoteAuthTabLink.classList.add( "active" );
+
+    loginForm.classList.add( "d-none" );
+    registerForm.classList.add( "d-none" );
+    remoteAuthSection.classList.remove( "d-none" );
+    alertBox.classList.add( "d-none" );
+
+    // Possibly emit a global event if you want to do something 
+    // else when switching to remote auth:
   } );
 
   // ********************************************************
@@ -253,8 +278,8 @@ export async function loginPage() {
   card.appendChild( alertBox );
   card.appendChild( loginForm );
   card.appendChild( registerForm );
+  card.appendChild( remoteAuthSection );
 
   container.appendChild( card );
-
   return container;
 }

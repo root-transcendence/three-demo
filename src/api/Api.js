@@ -1,6 +1,6 @@
 import { createRequestHandler, getCookie } from "./ApiUtils.js";
 
-const BASE_URL = "https://localhost";
+const ECOLE42_API_KEY = "u-s4t2ud-0d930db14b6e4ce5c5444d9e4a6ec2a7cbfebd777c72611065425e8de4f96f3d";
 
 let api;
 
@@ -19,7 +19,7 @@ class Api {
   #api;
 
   constructor() {
-    this.#api = createRequestHandler( BASE_URL );
+    this.#api = createRequestHandler( window.location.origin );
   }
 
   #getHeaders( csrf = true, auth = true ) {
@@ -359,7 +359,7 @@ class Api {
 }
 
 ( async function () {
-  const response = await fetch( `${BASE_URL}/api/users/get-csrf-token/`, {
+  const response = await fetch( `/api/users/get-csrf-token/`, {
     method: "GET",
     credentials: "include",
   } );

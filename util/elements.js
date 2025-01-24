@@ -1,8 +1,3 @@
-
-/* 
-  Basic helper functions (unchanged except for the addition of className in attributes).
-  If you already have them defined in your code, keep them as is.
-*/
 function Div( { className } ) {
   const div = document.createElement( "div" );
   if ( className ) div.className = className;
